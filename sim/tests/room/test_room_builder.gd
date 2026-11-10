@@ -47,17 +47,48 @@ func test_wall_inner_face_on_outline() -> void:
 	assert_almost_eq(min_z, -0.15, 0.001)
 	assert_almost_eq(max_z, 0.0, 0.001)
 
-func test_window_count_on_bank() -> void:
-	var n := 0
-	for m in _meshes(room.get_node("Wall_2/Full")):
-		if String(m.name).begins_with("Pane"):
-			n += 1
-	assert_eq(n, 8)
+func test_two_plain_windows_on_east_wall() -> void:
 	var n5 := 0
 	for m in _meshes(room.get_node("Wall_5/Full")):
 		if String(m.name).begins_with("Pane"):
 			n5 += 1
 	assert_eq(n5, 2)
+
+func test_no_window_panes_on_edge_2() -> void:
+	for m in _meshes(room.get_node("Wall_2")):
+		assert_false(String(m.name).begins_with("Pane"), "pane %s" % m.name)
+		assert_false(String(m.name).begins_with("Slat"), "slat %s" % m.name)
+
+func test_mural_present_on_back_wall() -> void:
+	var mural := room.get_node_or_null("Wall_2/Full/Mural") as MeshInstance3D
+	assert_not_null(mural)
+	if mural == null:
+		return
+	var mat := mural.material_override as StandardMaterial3D
+	assert_not_null(mat)
+	var tex := mat.albedo_texture
+	assert_not_null(tex)
+	var bb := _aabb_of(mural)
+	assert_between(bb.position.z, -0.001, 0.02)
+	assert_between(bb.end.z, -0.001, 0.02)
+	assert_almost_eq(bb.position.y, 0.25, 0.01)
+	assert_almost_eq(bb.end.y, 2.65, 0.01)
+	assert_gte(bb.position.x, 2.9)
+	assert_lte(bb.end.x, 13.1)
+	assert_almost_eq(bb.size.x / bb.size.y, float(tex.get_width()) / tex.get_height(), 0.01 * tex.get_width() / tex.get_height())
+
+func test_mural_faces_room_unmirrored() -> void:
+	var mural := room.get_node("Wall_2/Full/Mural") as MeshInstance3D
+	var n := mural.global_transform.basis * Vector3.BACK
+	assert_gt(n.z, 0.99, "faces south into the room")
+	var r := mural.global_transform.basis * Vector3.RIGHT
+	assert_gt(r.x, 0.99, "texture u runs east")
+
+func test_mural_hides_with_cutaway() -> void:
+	var mural := room.get_node("Wall_2/Full/Mural") as Node3D
+	assert_true(mural.is_visible_in_tree())
+	Cutaway.apply(room, PackedInt32Array([2]))
+	assert_false(mural.is_visible_in_tree())
 
 func test_doors_present() -> void:
 	for d in RoomData.DOORS:
@@ -98,19 +129,16 @@ func _pane_centres(edge: int) -> Array[Vector2]:
 			out.append(Vector2(c.x, c.z))
 	return out
 
-## Window placement is derived from RoomData: plain windows sit at 1/4 and 3/4 of every
-## exterior edge other than the bank; the bank's panes lie within its edge's endpoints.
+## Plain windows sit at 1/4 and 3/4 of every exterior edge other than the mural edge,
+## which has none.
 func test_windows_derived_from_room_data() -> void:
 	var n := RoomData.OUTLINE.size()
 	for e in RoomData.EXTERIOR_EDGES:
 		var a: Vector2 = RoomData.OUTLINE[e]
 		var b: Vector2 = RoomData.OUTLINE[(e + 1) % n]
 		var centres := _pane_centres(e)
-		if e == RoomData.WINDOW_BANK_EDGE:
-			assert_eq(centres.size(), 2 * RoomBuilder.BANK_PAIRS)
-			for c in centres:
-				var t := (c - a).dot(b - a) / (b - a).length_squared()
-				assert_between(t, 0.0, 1.0, "bank pane %s on edge %d" % [c, e])
+		if e == RoomData.MURAL_EDGE:
+			assert_eq(centres.size(), 0)
 		else:
 			assert_eq(centres.size(), RoomBuilder.PLAIN_WINDOW_FRACTIONS.size(), "edge %d" % e)
 			var ts: Array[float] = []

@@ -49,7 +49,7 @@ The user's decision: **one open room.** The plan's internal lines between 461, 4
 ### Walls, windows, ceiling
 - **Perimeter walls:** all of them are full height (2.9 m). There are no interior walls.
 - **Exterior walls:** these are inferred from the PDF. The **north wall of the 462/472 block** is on the building's outer edge, and so is the **east wall of 478**. Every other perimeter edge borders offices (473–477), the corridor (CORR1) or the pantry, so it is interior.
-- **Window bank:** a "bank of windows" runs along the **north wall of 462/472**. The windows are about 1.5 m wide × 1.6 m tall, with the sill about 0.75 m above the floor. They are paired between white piers about 0.6 m wide and have white horizontal blinds (photo 02). The east wall of 478 gets a couple of plain windows (inferred).
+- **Mural:** the **north wall of 462/472** has no windows. It carries a mural of Roy Rosenzweig (from the photo at https://rrchnm.org/img/founder.jpg): a blocky multicolour portrait about 2.4 m tall, its bottom at 0.25 m, toward the east end of the wall (right edge about 0.3 m from the corner). It is a textured quad on the wall's inner face and hides with the wall in the cutaway. The east wall of 478 gets a couple of plain windows (inferred).
 - **Finishes:** off-white painted drywall.
 - **Doors:** 1–3 light-oak doors with a narrow vision slot, on walls facing the corridor or pantry. They are decorative and always closed, so animals bounce off them.
 - **Floor:** tan/gold broadloom carpet.
@@ -60,7 +60,7 @@ Walls between the camera and the room interior cut down to a stub about 0.5 m hi
 
 ## 3. Furniture
 
-Reference material lives in `reference/FURNITURE.md`, with photos in `reference/photos/`. The photos are from 2006–2014; nothing newer was found. The main room is identified as the former "Robot Room": a large open area that CHNM took over in 2009, with a lounge in front of a bank of windows (photos 01, 02 and 03).
+Reference material lives in `reference/FURNITURE.md`, with photos in `reference/photos/`. The photos are from 2006–2014; nothing newer was found. The main room is identified as the former "Robot Room": a large open area that CHNM took over in 2009, with a lounge in front of the north wall, which now carries the Roy Rosenzweig mural (photos 01, 02 and 03 show the older window bank).
 
 Model these items for the main room. "Seen" means the item appears in photos of this room:
 
@@ -70,7 +70,7 @@ Model these items for the main room. "Seen" means the item appears in photos of 
 | Tub armchair | 1–2 | 0.8 × 0.7 × 0.75 m | white, light-wood legs | seen |
 | Sling lounge chair | 1–2 | 0.7 × 0.8 m | white canvas | seen |
 | Coffee table with lower shelf | 1 | 1.2 × 0.6 × 0.45 m | medium oak | seen |
-| Credenza under the window, with owl lamp | 1 | 1.5 × 0.5 × 0.75 m | wood, ivory lamp shade | seen |
+| Credenza against the north wall (in front of the mural), with owl lamp | 1 | 1.5 × 0.5 × 0.75 m | wood, ivory lamp shade | seen |
 | Tall wardrobe cabinets | 3–5 | 0.9 × 0.6 × 2.0 m | black laminate | seen |
 | TV on media stand | 1 | stand 1.0 × 0.45 × 0.75 m | black | seen |
 | Mobile whiteboard | 1–2 | 1.2 × 0.9 board, 1.8 m tall | white, aluminium | seen |
@@ -93,7 +93,7 @@ The starting camera looks north from the south, so "closest to us" is the south 
 - **Meeting:** a 12 × 4 ft beige conference table with eight task chairs sits behind the sofas, in the east band.
 - **Kitchenette and filing:** the kitchenette is on the alcove's south wall, west of the TV. The black cabinets (filing cabinets) line up next to it, further west.
 - **Workspace:** the desks are on the left (west of the alcove). Most sit against the near (south) wall and the west walls, each with a task chair, plus two back-to-back islands of desks in the middle.
-- **The rest:** the owl lamp credenza stays under the north window bank. Group tables, bookcases, the AV cart, stacking chairs, plants and the whiteboard fill the remaining spots.
+- **The rest:** the owl lamp credenza stays against the north wall in front of the mural. Group tables, bookcases, the AV cart, stacking chairs, plants and the whiteboard fill the remaining spots.
 
 Exact positions are the builder's call within that description. Keep the furniture layout in one editable scene, separate from the room geometry.
 
@@ -155,7 +155,7 @@ These are the user's decisions:
   - Right-drag or two-finger drag to pan.
 - **Zoom range:** from the whole room in view down to close enough that a single 2.5 mm flea is clearly visible on a desk. The near clip plane must allow this.
 - **Limits:** keep the orbit centre roughly within the room. Pitch stays between nearly top-down and about 20° above horizontal.
-- **Starting view:** the whole room, looking toward the window bank.
+- **Starting view:** the whole room, looking toward the north wall and its mural.
 
 ## 6. Controls UI
 
@@ -178,7 +178,7 @@ The user picked the "floating cards" layout. Mockup: `.superpowers/brainstorm/*/
 
 Daytime office only, with no toggle:
 - bright, even interior light, as from the fluorescent troffers
-- daylight through the window bank
+- daylight (a directional sun; the north wall has no windows)
 
 A gentle glow post-effect may be used so fireflies read as glowing.
 
@@ -217,7 +217,7 @@ A gentle glow post-effect may be used so fireflies read as glowing.
 
 ## 11. Calls made by the designer (not confirmed by the user)
 
-- **Exterior walls:** the window bank is on the north wall of 462/472, and the east wall of 478 is also exterior. Inferred from the PDF.
+- **Exterior walls:** the north wall of 462/472 (mural, no windows) and the east wall of 478 is also exterior. Inferred from the PDF.
 - **Columns:** 2–4, placed at the plan's internal line junctions.
 - **Doors:** decorative, always closed.
 - **Hop rule:** relaunch at species hop speed on every landing, plus a small random heading turn.

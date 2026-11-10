@@ -134,17 +134,19 @@ func test_box_heights() -> void:
 		assert_true(b.end.y <= 2.2 + EPS, "height %s" % b)
 		assert_true(b.position.y >= -EPS, "above floor %s" % b)
 
-func test_window_sill_clear() -> void:
-	var w: Dictionary = RoomGeometry.walls()[RoomData.WINDOW_BANK_EDGE]
-	var sill := Rect2(minf(w.a.x, w.b.x), w.a.y, absf(w.b.x - w.a.x), 0.6)
+## Nothing taller than 1.0 m stands against the mural's span (north wall, z < 0.6), except
+## the credenza and its owl lamp (the lamp reaches 1.5 m; accepted, see the task 14 report).
+func test_mural_span_clear() -> void:
+	var w: Dictionary = RoomGeometry.walls()[RoomData.MURAL_EDGE]
+	var strip := Rect2(minf(w.a.x, w.b.x), w.a.y, absf(w.b.x - w.a.x), 0.6)
 	var too_tall: Array[String] = []
 	for item in FurnitureFactory.load_layout():
 		if item.type in ["credenza", "owl_lamp"]:
 			continue
 		for b in FurnitureFactory.collision_boxes(item):
-			if _overlap(_footprint(b), sill) and b.end.y > 0.75 + EPS:
+			if _overlap(_footprint(b), strip) and b.end.y > 1.0 + EPS:
 				too_tall.append("%s at %s" % [item.type, item.pos])
-	assert_eq(too_tall, [] as Array[String], "too tall under the window")
+	assert_eq(too_tall, [] as Array[String], "too tall in front of the mural")
 
 func test_spawnable_area_remains() -> void:
 	var used := 0.0

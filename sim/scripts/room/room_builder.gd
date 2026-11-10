@@ -4,9 +4,12 @@ const THICK := 0.15
 const STUB_H := 0.5
 const SILL := 0.75
 const WIN_H := 1.6
-const BANK_PAIRS := 4
-const BANK_PAIR_W := 1.5
-## Plain windows on the non-bank exterior edges, centred at these fractions of the edge.
+const MURAL_TEX := "res://assets/mural/rosenzweig_mural.jpg"
+const MURAL_H := 2.4
+const MURAL_BOTTOM := 0.25
+const MURAL_RIGHT_GAP := 0.3
+const MURAL_OFFSET := 0.005
+## Plain windows on the exterior edges, centred at these fractions of the edge.
 const PLAIN_WINDOW_FRACTIONS := [0.25, 0.75]
 const DOOR_W := 1.0
 const DOOR_H := 2.1
@@ -120,13 +123,13 @@ static func _build_wall(w: Dictionary) -> Node3D:
 	_box(stub, "Slab", Vector3(lo, 0, 0), Vector3(hi, STUB_H, THICK), wall_mat)
 	# stubs/solids sit outside the outline: local z in [0, THICK] is outward.
 	var openings: Array = []
-	if idx == RoomData.WINDOW_BANK_EDGE:
-		openings = _bank_openings(a, b, mid, ex2)
-	elif idx in RoomData.EXTERIOR_EDGES:
+	if idx in RoomData.EXTERIOR_EDGES and idx != RoomData.MURAL_EDGE:
 		openings = _plain_openings(a, b, mid, ex2)
 	_solid_with_openings(full, lo, hi, openings, wall_mat)
 	for i in openings.size():
-		_add_pane(full, i, openings[i], idx == RoomData.WINDOW_BANK_EDGE)
+		_add_pane(full, i, openings[i])
+	if idx == RoomData.MURAL_EDGE:
+		_add_mural(full, node)
 	for d in RoomData.DOORS:
 		if d.edge == idx:
 			var c := Vector2(d.center, mid.y) if absf(n.y) > 0.5 else Vector2(mid.x, d.center)
@@ -138,19 +141,6 @@ static func _opening(mid: Vector2, ex2: Vector2, p0: Vector2, p1: Vector2, y0: f
 	var ua := (p0 - mid).dot(ex2)
 	var ub := (p1 - mid).dot(ex2)
 	return {"u0": minf(ua, ub), "u1": maxf(ua, ub), "y0": y0, "y1": y1}
-
-## BANK_PAIRS evenly spaced pairs of panes along the whole edge a -> b.
-static func _bank_openings(a: Vector2, b: Vector2, mid: Vector2, ex2: Vector2) -> Array:
-	var out: Array = []
-	var dir := (b - a).normalized()
-	var pitch := a.distance_to(b) / BANK_PAIRS
-	var pane_w := (BANK_PAIR_W - 0.06) * 0.5
-	for p in BANK_PAIRS:
-		var c := pitch * (p + 0.5)
-		for s in 2:
-			var w0 := c - BANK_PAIR_W * 0.5 + s * (pane_w + 0.06)
-			out.append(_opening(mid, ex2, a + dir * w0, a + dir * (w0 + pane_w), SILL, SILL + WIN_H))
-	return out
 
 ## One 1.5 m window centred at each PLAIN_WINDOW_FRACTIONS of the edge a -> b.
 static func _plain_openings(a: Vector2, b: Vector2, mid: Vector2, ex2: Vector2) -> Array:
@@ -177,16 +167,33 @@ static func _solid_with_openings(parent: Node3D, lo: float, hi: float, openings:
 	if hi > cur + 0.001:
 		_box(parent, "Seg_%d" % k, Vector3(cur, 0, 0), Vector3(hi, RoomData.CEILING, THICK), mat)
 
-static func _add_pane(parent: Node3D, i: int, o: Dictionary, blinds: bool) -> void:
+static func _add_pane(parent: Node3D, i: int, o: Dictionary) -> void:
 	var glow := _mat("pane", Color("a9d8f5"), true)
 	_box(parent, "Pane_%d" % i, Vector3(o.u0, o.y0, THICK * 0.5 - 0.01), Vector3(o.u1, o.y1, THICK * 0.5 + 0.01), glow, false)
-	if blinds:
-		var white := _mat("blind", Color("f6f6f2"))
-		var slats := 10
-		var h: float = o.y1 - o.y0
-		for s in slats:
-			var y: float = o.y0 + h * (s + 0.5) / slats
-			_box(parent, "Slat_%d_%d" % [i, s], Vector3(o.u0, y - 0.012, -0.02), Vector3(o.u1, y + 0.012, 0.0), white, false)
+
+## The Roy Rosenzweig mural: a textured quad on the wall's inner face, toward the east end.
+## The wall's local +z points outward, so the quad is placed in world space and converted.
+static func _add_mural(parent: Node3D, wall: Node3D) -> void:
+	var tex := load(MURAL_TEX) as Texture2D
+	var w := MURAL_H * float(tex.get_width()) / tex.get_height()
+	var east := maxf(RoomData.OUTLINE[RoomData.MURAL_EDGE].x, RoomData.OUTLINE[(RoomData.MURAL_EDGE + 1) % RoomData.OUTLINE.size()].x)
+	var wall_z := RoomData.OUTLINE[RoomData.MURAL_EDGE].y
+	var centre := Vector3(east - MURAL_RIGHT_GAP - w * 0.5, MURAL_BOTTOM + MURAL_H * 0.5, wall_z + MURAL_OFFSET)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = tex
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	var quad := QuadMesh.new()
+	quad.size = Vector2(w, MURAL_H)
+	var mi := MeshInstance3D.new()
+	mi.name = "Mural"
+	mi.mesh = quad
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# A QuadMesh faces +z with u running +x; placing it with an identity world basis makes
+	# it face south into the room with u running east (not mirrored).
+	mi.transform = wall.transform.affine_inverse() * Transform3D(Basis.IDENTITY, centre)
+	parent.add_child(mi)
 
 static func _add_door(parent: Node3D, idx: int, u: float) -> void:
 	var door := _box(parent, "Door_%d" % idx, Vector3(u - DOOR_W * 0.5, 0, -0.05), Vector3(u + DOOR_W * 0.5, DOOR_H, 0.0), _mat("door", C_DOOR))
@@ -196,7 +203,7 @@ static func _add_door(parent: Node3D, idx: int, u: float) -> void:
 static func _add_lighting(root: Node3D) -> void:
 	var sun := DirectionalLight3D.new()
 	sun.name = "Sun"
-	sun.rotation_degrees = Vector3(-135, 0, 0)   # travels south (+z) and down, in through the north bank
+	sun.rotation_degrees = Vector3(-135, 0, 0)   # travels south (+z) and down, in through the north wall
 	sun.light_energy = 1.2
 	sun.light_color = Color("fffaf2")
 	sun.shadow_enabled = true

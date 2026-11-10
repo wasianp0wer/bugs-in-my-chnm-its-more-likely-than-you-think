@@ -33,3 +33,7 @@ Animal models used in the RRCHNM critter simulation. Quaternius models are CC0 (
 | Spider | Spider | Quaternius | CC0 1.0 | https://poly.pizza/m/yRYJiAJyiM |
 | Squirrel | Squirrel | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/caxos24uWC9 |
 | Wasp | Wasp | Quaternius | CC0 1.0 | https://poly.pizza/m/3aQgc75sUR |
+
+Other assets:
+
+- Roy Rosenzweig mural (photograph): Roy Rosenzweig Center for History and New Media, https://rrchnm.org/img/founder.jpg — used with permission of RRCHNM

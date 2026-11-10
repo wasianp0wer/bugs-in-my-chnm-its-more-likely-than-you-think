@@ -13,7 +13,7 @@ const OUTLINE: PackedVector2Array = [
 	Vector2(13.1,3.9), Vector2(31.5,3.9), Vector2(31.5,14.8), Vector2(20.3,14.8),
 	Vector2(20.3,10.7), Vector2(0,10.7)]
 const EXTERIOR_EDGES := [2, 5]   # OUTLINE edge i = OUTLINE[i]→OUTLINE[i+1]: north of 462/472, east of 478
-const WINDOW_BANK_EDGE := 2
+const MURAL_EDGE := 2
 const COLUMNS: Array[Vector2] = [Vector2(8.0,5.5), Vector2(13.1,7.3), Vector2(20.3,7.3), Vector2(26.0,7.3)]
 const COLUMN_SIZE := 0.6
 const DOORS := [ {"edge": 8, "center": 16.5}, {"edge": 9, "center": 8.3} ]  # edge index, coordinate along that edge's axis
