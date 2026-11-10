@@ -7,7 +7,8 @@ extends SceneTree
 ## <repo>/build/swarm_check.png (overview) and swarm_check_close.png (near the desk).
 ## Numeric check: PROBES single-particle batches per probe species, whose GPU read-back
 ## AABB (particles_get_current_aabb) is one particle's position grown by the mesh's
-## longest axis, are checked once per second against the room and the boxes, and the
+## longest axis, are checked once per second against the room and the boxes, both kept
+## the species' clearance away (MotionRules.clearance, 0.9 m for a deer), and the
 ## big batches' AABBs against the room bounds. Exits 1 and prints FAIL on any violation.
 ## Pass `-- noprobes` to measure FPS without the 200 read-back probe batches.
 
@@ -24,6 +25,7 @@ const TEST_BOXES: Array[AABB] = [
 var _world: CollisionWorld
 var _swarms: SwarmManager
 var _probes: Array[SwarmBatch] = []
+var _clearance := {}  # species id -> MotionRules.clearance
 var _cam: Camera3D
 var _elapsed := 0.0
 var _next_tick := 1.0
@@ -73,6 +75,7 @@ func _init() -> void:
 		var params := _world.to_shader_params()
 		for id in PROBE_SPECIES:
 			var sp := SpeciesDB.get_species(id)
+			_clearance[id] = MotionRules.clearance(sp)
 			for i in PROBES:
 				var b := SwarmBatch.create(sp, 1, params, 1000 + _probes.size())
 				scene.add_child(b)
@@ -118,17 +121,26 @@ func _check_probes() -> void:
 		_probe_checks += 1
 		_min_y = minf(_min_y, p.y)
 		_max_y = maxf(_max_y, p.y)
-		var outside := not _world.inside_room_xz(Vector2(p.x, p.z)) or p.y < -EPS or p.y > _world.ceiling + EPS
+		# Clearance (half the body length; 0.9 m for a deer): the footprint p.xz +- c stays
+		# in the room and the centre stays out of every box grown by c in x/z.
+		var c: float = _clearance[b.species_id]
+		var cw := maxf(c - EPS, 0.0)
+		var outside := p.y < -EPS or p.y > _world.ceiling + EPS
+		for dx in [-cw, cw]:
+			for dz in [-cw, cw]:
+				outside = outside or not _world.inside_room_xz(Vector2(p.x + dx, p.z + dz))
 		var inside_box := -1
 		for i in _world.boxes.size():
-			if _world.boxes[i].grow(-EPS).has_point(p):
+			var bx := _world.boxes[i]
+			var grown := AABB(bx.position - Vector3(c, 0.0, c), bx.size + Vector3(2.0 * c, 0.0, 2.0 * c))
+			if grown.grow(-EPS).has_point(p):
 				inside_box = i
 		for t in TEST_BOXES:
 			if p.x >= t.position.x and p.x <= t.end.x and p.z >= t.position.z and p.z <= t.end.z:
 				_over_test_box += 1
 		if outside or inside_box >= 0:
 			_violations.append("t=%.1f %s probe at %s %s" % [_elapsed, b.species_id, p,
-				"outside room" if outside else "inside box %d" % inside_box])
+				"outside room (clearance %.3f)" % c if outside else "within %.3f of box %d" % [c, inside_box]])
 
 
 func _check_batches() -> void:

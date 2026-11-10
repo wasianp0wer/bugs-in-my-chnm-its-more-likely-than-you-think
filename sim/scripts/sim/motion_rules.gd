@@ -9,6 +9,10 @@ const MAX_STEP := 0.02
 const MAX_SUBSTEPS := 32
 const HOP_YAW_MAX := deg_to_rad(30.0)
 
+## Half the body length: how far the animal's centre keeps from walls and box sides.
+static func clearance(sp: Dictionary) -> float:
+	return 0.5 * float(sp.get("body_length_m", 0.0))
+
 static func initial_velocity(sp: Dictionary, rng: RandomNumberGenerator) -> Vector3:
 	var speed: float = sp["speed_mps"]
 	if sp["motion"] == "hopper":
@@ -19,13 +23,22 @@ static func initial_velocity(sp: Dictionary, rng: RandomNumberGenerator) -> Vect
 	var r := sqrt(1.0 - z * z)
 	return Vector3(r * cos(a), z, r * sin(a)) * speed
 
-## True if some box contains q while the old coordinate is not strictly inside
-## that box's range on the moving axis (axis 0 = x, 2 = z): the move entered a box side.
-static func _entered_side(world: CollisionWorld, q: Vector3, old: Vector3, axis: int) -> bool:
+## inside_room_xz for all four corners p +- c: the whole footprint is in the room.
+static func _inside_room_c(world: CollisionWorld, p: Vector2, c: float) -> bool:
+	return world.inside_room_xz(Vector2(p.x - c, p.y - c)) and world.inside_room_xz(Vector2(p.x + c, p.y - c)) \
+			and world.inside_room_xz(Vector2(p.x - c, p.y + c)) and world.inside_room_xz(Vector2(p.x + c, p.y + c))
+
+## Box b grown by c in x and z (not y) contains q. Faces are solid (inclusive).
+static func _in_box_c(b: AABB, q: Vector3, c: float) -> bool:
+	return q.x >= b.position.x - c and q.x <= b.end.x + c and q.y >= b.position.y and q.y <= b.end.y \
+			and q.z >= b.position.z - c and q.z <= b.end.z + c
+
+## True if some box grown by c contains q while the old coordinate is not strictly inside
+## that grown box's range on the moving axis (axis 0 = x, 2 = z): the move entered a side.
+static func _entered_side(world: CollisionWorld, q: Vector3, old: Vector3, axis: int, c: float) -> bool:
 	for b in world.boxes:
-		if q.x >= b.position.x and q.x <= b.end.x and q.y >= b.position.y and q.y <= b.end.y \
-				and q.z >= b.position.z and q.z <= b.end.z:
-			if old[axis] <= b.position[axis] or old[axis] >= b.end[axis]:
+		if _in_box_c(b, q, c):
+			if old[axis] <= b.position[axis] - c or old[axis] >= b.end[axis] + c:
 				return true
 	return false
 
@@ -35,6 +48,7 @@ static func step(pos: Vector3, vel: Vector3, sp: Dictionary, world: CollisionWor
 	dt = minf(dt, MAX_DT)
 	var hopper: bool = sp["motion"] == "hopper"
 	var hop_speed: float = sqrt(2.0 * GRAVITY * float(sp["hop_height_m"]))
+	var cl := clearance(sp)
 	var reach := vel.length() + (GRAVITY * dt if hopper else 0.0)
 	var n := clampi(ceili(reach * dt / MAX_STEP), 1, MAX_SUBSTEPS)
 	var h := dt / n
@@ -42,22 +56,21 @@ static func step(pos: Vector3, vel: Vector3, sp: Dictionary, world: CollisionWor
 		if hopper:
 			vel.y -= GRAVITY * h
 		var p := pos + vel * h
-		# Walls and box sides: x against the old z, z against the already-resolved x.
-		if not world.inside_room_xz(Vector2(p.x, pos.z)) \
-				or _entered_side(world, Vector3(p.x, pos.y, pos.z), pos, 0):
+		# Walls and box sides, kept cl away: x against the old z, z against the resolved x.
+		if not _inside_room_c(world, Vector2(p.x, pos.z), cl) \
+				or _entered_side(world, Vector3(p.x, pos.y, pos.z), pos, 0, cl):
 			vel.x = -vel.x
 			p.x = pos.x
-		if not world.inside_room_xz(Vector2(p.x, p.z)) \
-				or _entered_side(world, Vector3(p.x, pos.y, p.z), pos, 2):
+		if not _inside_room_c(world, Vector2(p.x, p.z), cl) \
+				or _entered_side(world, Vector3(p.x, pos.y, p.z), pos, 2, cl):
 			vel.z = -vel.z
 			p.z = pos.z
-		# Vertical: among boxes containing p, the highest top at/below pos.y (came from
-		# above) and the lowest bottom at/above pos.y (came from below).
+		# Vertical: among boxes (footprints grown by cl) containing p, the highest top
+		# at/below pos.y (came from above) and the lowest bottom at/above pos.y (from below).
 		var top := -1.0
 		var bottom := INF
 		for bx in world.boxes:
-			if p.x >= bx.position.x and p.x <= bx.end.x and p.y >= bx.position.y and p.y <= bx.end.y \
-					and p.z >= bx.position.z and p.z <= bx.end.z:
+			if _in_box_c(bx, p, cl):
 				if pos.y >= bx.end.y:
 					top = maxf(top, bx.end.y)
 				if pos.y <= bx.position.y:

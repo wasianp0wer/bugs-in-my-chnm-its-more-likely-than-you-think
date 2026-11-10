@@ -30,6 +30,7 @@ static func create(sp: Dictionary, count: int, world_params: Dictionary, seed: i
 	pm.set_shader_parameter("speed", float(sp["speed_mps"]))
 	pm.set_shader_parameter("hop_speed", SpeciesDB.hop_speed(sp))
 	pm.set_shader_parameter("body_length", float(sp["body_length_m"]))
+	pm.set_shader_parameter("clearance", MotionRules.clearance(sp))
 	pm.set_shader_parameter("seed", seed)
 	b.process_material = pm
 	b.set_world_params(world_params)

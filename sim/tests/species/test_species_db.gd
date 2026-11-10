@@ -65,3 +65,13 @@ func test_bake_yaw_valid_and_defaults_to_zero() -> void:
 func test_json_ends_with_newline() -> void:
 	var f := FileAccess.open(SpeciesDB.DATA_PATH, FileAccess.READ)
 	assert_true(f.get_as_text().ends_with("\n"))
+
+
+## No species is wider (2 * clearance) than the narrowest room rect span, or it could
+## not fit (or spawn) there and would get stuck.
+func test_every_species_fits_the_narrowest_rect() -> void:
+	var narrowest := INF
+	for r in RoomData.RECTS:
+		narrowest = minf(narrowest, minf(r.size.x, r.size.y))
+	for s in SpeciesDB.load_all():
+		assert_lte(2.0 * MotionRules.clearance(s), narrowest, s["id"])

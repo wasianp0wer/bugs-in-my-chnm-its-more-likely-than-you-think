@@ -14,7 +14,7 @@ const float MAX_STEP = 0.02;
 const int MAX_SUBSTEPS = 32;
 const float HOP_YAW_MAX = 0.5235987756; // deg_to_rad(30)
 const float SPAWN_Y = 2.8;
-const int SPAWN_TRIES = 8;
+const int SPAWN_TRIES = 16;
 const float NO_BOTTOM = 1.0e30;         // stands in for INF
 
 // World (CollisionWorld.to_shader_params(), plus area prefix sums for spawning).
@@ -30,6 +30,7 @@ uniform bool is_hopper = false;
 uniform float speed = 1.0;              // m/s
 uniform float hop_speed = 0.0;          // vertical launch speed on landing, m/s
 uniform float body_length = 0.01;       // uniform scale of the 1 m baked mesh
+uniform float clearance = 0.0;          // MotionRules.clearance: half the body length, m
 uniform int seed = 0;
 
 float hash01(uint x) {
@@ -56,19 +57,26 @@ bool inside_room_xz(vec2 p) {
 	return false;
 }
 
-// Faces are solid (inclusive), as in CollisionWorld.box_at.
-bool in_box(vec3 q, int b) {
-	return all(greaterThanEqual(q, box_min[b])) && all(lessThanEqual(q, box_max[b]));
+// MotionRules._inside_room_c: all four corners p +- c are in the room.
+bool inside_room_c(vec2 p, float c) {
+	return inside_room_xz(vec2(p.x - c, p.y - c)) && inside_room_xz(vec2(p.x + c, p.y - c))
+			&& inside_room_xz(vec2(p.x - c, p.y + c)) && inside_room_xz(vec2(p.x + c, p.y + c));
 }
 
-// MotionRules._entered_side. axis 0 = x, 2 = z.
-bool entered_side(vec3 q, vec3 old, int axis) {
+// MotionRules._in_box_c: box b grown by c in x and z (not y) contains q. Faces are solid.
+bool in_box_c(vec3 q, int b, float c) {
+	vec3 g = vec3(c, 0.0, c);
+	return all(greaterThanEqual(q, box_min[b] - g)) && all(lessThanEqual(q, box_max[b] + g));
+}
+
+// MotionRules._entered_side, boxes grown by c. axis 0 = x, 2 = z.
+bool entered_side(vec3 q, vec3 old, int axis, float c) {
 	for (int b = 0; b < box_count; b++) {
-		if (in_box(q, b)) {
+		if (in_box_c(q, b, c)) {
 			float o = axis == 0 ? old.x : old.z;
 			float lo = axis == 0 ? box_min[b].x : box_min[b].z;
 			float hi = axis == 0 ? box_max[b].x : box_max[b].z;
-			if (o <= lo || o >= hi) {
+			if (o <= lo - c || o >= hi + c) {
 				return true;
 			}
 		}
@@ -76,9 +84,10 @@ bool entered_side(vec3 q, vec3 old, int axis) {
 	return false;
 }
 
-bool in_any_box(vec3 q) {
+// RoomGeometry._inside_any: some box grown by c in x/z contains q.
+bool in_any_box(vec3 q, float c) {
 	for (int b = 0; b < box_count; b++) {
-		if (in_box(q, b)) {
+		if (in_box_c(q, b, c)) {
 			return true;
 		}
 	}
@@ -86,9 +95,13 @@ bool in_any_box(vec3 q) {
 }
 
 // Area-weighted point in the room (RoomGeometry.random_spawn_xz), re-sampled up to
-// SPAWN_TRIES times while the spawn point (x, SPAWN_Y, z) is inside a box. Spawning
-// above a low box is fine: the animal rains down onto the desk or sofa.
+// SPAWN_TRIES times while the footprint xz +- cl leaves the room or the spawn point
+// (x, SPAWN_Y, z) is inside a box grown by cl in x/z. Spawning above a low box is fine:
+// the animal rains down onto the desk or sofa. (The GDScript re-samples until it
+// succeeds; here, if every try fails, the last point is clamped cl inside its rect so
+// the footprint at least starts within the walls.)
 vec2 spawn_xz(uint s) {
+	float cl = clearance;
 	vec2 xz = vec2(0.0);
 	for (int t = 0; t < SPAWN_TRIES; t++) {
 		uint k = s + uint(t) * 3u;
@@ -102,8 +115,11 @@ vec2 spawn_xz(uint s) {
 		}
 		vec4 r = room_rects[ri];
 		xz = vec2(mix(r.x, r.z, hash01(k + 1u)), mix(r.y, r.w, hash01(k + 2u)));
-		if (!in_any_box(vec3(xz.x, SPAWN_Y, xz.y))) {
-			break;
+		if (inside_room_c(xz, cl) && !in_any_box(vec3(xz.x, SPAWN_Y, xz.y), cl)) {
+			return xz;
+		}
+		if (t == SPAWN_TRIES - 1) {
+			xz = clamp(xz, r.xy + cl, r.zw - cl);
 		}
 	}
 	return xz;
@@ -161,28 +177,29 @@ void process() {
 	float reach = length(vel) + (is_hopper ? GRAVITY * dt : 0.0);
 	int n = clamp(int(ceil(reach * dt / MAX_STEP)), 1, MAX_SUBSTEPS);
 	float h = dt / float(n);
+	float cl = clearance;
 	for (int i = 0; i < n; i++) {
 		if (is_hopper) {
 			vel.y -= GRAVITY * h;
 		}
 		vec3 p = pos + vel * h;
-		// Walls and box sides: x against the old z, z against the already-resolved x.
-		if (!inside_room_xz(vec2(p.x, pos.z))
-				|| entered_side(vec3(p.x, pos.y, pos.z), pos, 0)) {
+		// Walls and box sides, kept cl away: x against the old z, z against the resolved x.
+		if (!inside_room_c(vec2(p.x, pos.z), cl)
+				|| entered_side(vec3(p.x, pos.y, pos.z), pos, 0, cl)) {
 			vel.x = -vel.x;
 			p.x = pos.x;
 		}
-		if (!inside_room_xz(vec2(p.x, p.z))
-				|| entered_side(vec3(p.x, pos.y, p.z), pos, 2)) {
+		if (!inside_room_c(vec2(p.x, p.z), cl)
+				|| entered_side(vec3(p.x, pos.y, p.z), pos, 2, cl)) {
 			vel.z = -vel.z;
 			p.z = pos.z;
 		}
-		// Vertical: among boxes containing p, the highest top at/below pos.y (came from
-		// above) and the lowest bottom at/above pos.y (came from below).
+		// Vertical: among boxes (footprints grown by cl) containing p, the highest top
+		// at/below pos.y (came from above) and the lowest bottom at/above pos.y (from below).
 		float top = -1.0;
 		float bottom = NO_BOTTOM;
 		for (int b = 0; b < box_count; b++) {
-			if (in_box(p, b)) {
+			if (in_box_c(p, b, cl)) {
 				if (pos.y >= box_max[b].y) {
 					top = max(top, box_max[b].y);
 				}

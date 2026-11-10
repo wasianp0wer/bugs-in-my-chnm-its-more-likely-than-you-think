@@ -3,7 +3,7 @@ extends GutTest
 const SHADER_PATH := "res://shaders/critter_process.gdshader"
 const UNIFORMS := [
 	"room_rects", "room_rect_count", "rect_cdf", "box_min", "box_max", "box_count", "ceiling",
-	"is_hopper", "speed", "hop_speed", "body_length", "seed",
+	"is_hopper", "speed", "hop_speed", "body_length", "clearance", "seed",
 ]
 
 func _world() -> CollisionWorld:
@@ -41,7 +41,8 @@ func test_shader_spawn_mirrors_room_geometry() -> void:
 	if m:
 		assert_almost_eq(float(m.get_string(1)), RoomGeometry.SPAWN_Y, 1e-6)
 	assert_false(code.contains("in_box_footprint"), "no footprint rejection")
-	assert_true(code.contains("in_any_box(vec3(xz.x, SPAWN_Y, xz.y))"), "3D point rejection")
+	assert_true(code.contains("in_any_box(vec3(xz.x, SPAWN_Y, xz.y), cl)"), "3D point rejection, grown by c")
+	assert_true(code.contains("inside_room_c(xz, cl)"), "all four corners in the room")
 
 func test_rect_cdf_is_normalised_area_prefix_sums() -> void:
 	var cdf := SwarmBatch.rect_cdf(_world().to_shader_params())
@@ -87,7 +88,7 @@ func test_batch_uniforms_match_world() -> void:
 
 func test_batch_species_uniforms() -> void:
 	var params := _world().to_shader_params()
-	for id in ["flea", "wasp"]:
+	for id in ["flea", "wasp", "deer"]:
 		var sp := SpeciesDB.get_species(id)
 		var b := SwarmBatch.create(sp, 10, params, 1)
 		autofree(b)
@@ -96,6 +97,7 @@ func test_batch_species_uniforms() -> void:
 		assert_almost_eq(float(pm.get_shader_parameter("speed")), float(sp["speed_mps"]), 1e-6, id)
 		assert_almost_eq(float(pm.get_shader_parameter("hop_speed")), SpeciesDB.hop_speed(sp), 1e-6, id)
 		assert_almost_eq(float(pm.get_shader_parameter("body_length")), float(sp["body_length_m"]), 1e-6, id)
+		assert_almost_eq(float(pm.get_shader_parameter("clearance")), MotionRules.clearance(sp), 1e-6, id)
 
 func test_emissive_species_gets_duplicated_emissive_materials() -> void:
 	var sp := SpeciesDB.get_species("firefly")

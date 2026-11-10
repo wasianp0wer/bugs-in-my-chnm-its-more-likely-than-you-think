@@ -55,18 +55,24 @@ static func column_boxes() -> Array[AABB]:
 		out.append(AABB(Vector3(c.x - s / 2.0, 0.0, c.y - s / 2.0), Vector3(s, RoomData.CEILING, s)))
 	return out
 
-## Faces are solid (inclusive), as in CollisionWorld.box_at.
-static func _inside_any(q: Vector3, boxes: Array[AABB]) -> bool:
+## Some box grown by c in x/z (not y) contains q; faces are solid (inclusive), as in
+## MotionRules._in_box_c.
+static func _inside_any(q: Vector3, boxes: Array[AABB], c: float) -> bool:
 	for b in boxes:
-		var e := b.end
-		if q.x >= b.position.x and q.x <= e.x and q.y >= b.position.y and q.y <= e.y \
-				and q.z >= b.position.z and q.z <= e.z:
+		if MotionRules._in_box_c(b, q, c):
 			return true
 	return false
 
-## Area-weighted xz in the room whose spawn point (x, SPAWN_Y, z) is in no box; spawning
-## above a low box (a desk) is fine, the animal rains down onto it.
-static func random_spawn_xz(rng: RandomNumberGenerator, obstacles: Array[AABB]) -> Vector2:
+## All four corners p +- c are in the room (MotionRules._inside_room_c).
+static func _contains_c(p: Vector2, c: float) -> bool:
+	return contains_xz(Vector2(p.x - c, p.y - c)) and contains_xz(Vector2(p.x + c, p.y - c)) \
+			and contains_xz(Vector2(p.x - c, p.y + c)) and contains_xz(Vector2(p.x + c, p.y + c))
+
+## Area-weighted xz in the room, re-sampled until the animal's footprint (p +- clearance)
+## is in the room and the spawn point (x, SPAWN_Y, z) is in no box grown by clearance in
+## x/z; spawning above a low box (a desk) is fine, the animal rains down onto it.
+static func random_spawn_xz(rng: RandomNumberGenerator, obstacles: Array[AABB],
+		clearance := 0.0) -> Vector2:
 	var total := area()
 	while true:
 		var pick := rng.randf() * total
@@ -77,7 +83,7 @@ static func random_spawn_xz(rng: RandomNumberGenerator, obstacles: Array[AABB]) 
 				break
 			pick -= cand.get_area()
 		var p := Vector2(rng.randf_range(r.position.x, r.end.x), rng.randf_range(r.position.y, r.end.y))
-		if not _inside_any(Vector3(p.x, SPAWN_Y, p.y), obstacles):
+		if _contains_c(p, clearance) and not _inside_any(Vector3(p.x, SPAWN_Y, p.y), obstacles, clearance):
 			return p
 	return Vector2.ZERO
 

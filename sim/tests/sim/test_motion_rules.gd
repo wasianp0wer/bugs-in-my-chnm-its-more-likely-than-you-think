@@ -6,10 +6,11 @@ const RECTS: Array[Rect2] = [
 	Rect2(13.1, 3.9, 18.4, 6.8),
 	Rect2(20.3, 10.7, 11.2, 4.1),
 ]
-const FLEA := {"motion": "hopper", "speed_mps": 0.5, "hop_height_m": 0.2}
-const FLYER := {"motion": "flyer", "speed_mps": 1.5, "hop_height_m": 0.0}
-const BEE := {"motion": "flyer", "speed_mps": 3.0, "hop_height_m": 0.0}
-const FROG := {"motion": "hopper", "speed_mps": 2.0, "hop_height_m": 0.4}
+# body_length_m 0 = clearance 0: point animals, so these tests keep their original meaning.
+const FLEA := {"motion": "hopper", "speed_mps": 0.5, "hop_height_m": 0.2, "body_length_m": 0.0}
+const FLYER := {"motion": "flyer", "speed_mps": 1.5, "hop_height_m": 0.0, "body_length_m": 0.0}
+const BEE := {"motion": "flyer", "speed_mps": 3.0, "hop_height_m": 0.0, "body_length_m": 0.0}
+const FROG := {"motion": "hopper", "speed_mps": 2.0, "hop_height_m": 0.4, "body_length_m": 0.0}
 
 func _world() -> CollisionWorld:
 	var boxes: Array[AABB] = [
@@ -202,3 +203,74 @@ func test_step_constants() -> void:
 	assert_eq(MotionRules.MAX_DT, 0.05)
 	assert_eq(MotionRules.MAX_STEP, 0.02)
 	assert_eq(MotionRules.MAX_SUBSTEPS, 32)
+
+func test_clearance_is_half_body_length() -> void:
+	assert_almost_eq(MotionRules.clearance(SpeciesDB.get_species("deer")), 0.9, 1e-6)
+	assert_eq(MotionRules.clearance({"motion": "flyer", "speed_mps": 1.0}), 0.0, "defaults to 0")
+
+func _deer_world() -> CollisionWorld:
+	var boxes: Array[AABB] = RoomGeometry.column_boxes()
+	boxes.append_array(_world().boxes)
+	boxes.append(AABB(Vector3(24, 0, 12), Vector3(2, 0.45, 0.9)))  # sofa
+	return CollisionWorld.new(RoomData.RECTS, boxes, RoomData.CEILING)
+
+## All four corners p.xz +- c inside the room.
+func _corners_inside(w: CollisionWorld, p: Vector3, c: float) -> bool:
+	for dx in [-c, c]:
+		for dz in [-c, c]:
+			if not w.inside_room_xz(Vector2(p.x + dx, p.z + dz)):
+				return false
+	return true
+
+## Centre strictly inside some box grown by c in x/z (not y).
+func _strictly_in_grown_box(w: CollisionWorld, p: Vector3, c: float) -> int:
+	for i in w.boxes.size():
+		var b := w.boxes[i]
+		if p.x > b.position.x - c + 1e-4 and p.x < b.end.x + c - 1e-4 \
+				and p.y > b.position.y + 1e-4 and p.y < b.end.y - 1e-4 \
+				and p.z > b.position.z - c + 1e-4 and p.z < b.end.z + c - 1e-4:
+			return i
+	return -1
+
+func _deer_start(w: CollisionWorld, c: float, rng: RandomNumberGenerator) -> Vector3:
+	while true:
+		var r: Rect2 = RoomData.RECTS[rng.randi() % RoomData.RECTS.size()]
+		var p := Vector3(rng.randf_range(r.position.x, r.end.x), RoomGeometry.SPAWN_Y,
+			rng.randf_range(r.position.y, r.end.y))
+		if _corners_inside(w, p, c) and _strictly_in_grown_box(w, p, c) < 0:
+			return p
+	return Vector3.ZERO
+
+## A deer (1.8 m, c = 0.9) keeps its whole footprint in the room and never has its
+## centre within c of a box side, over 60 s at 60 fps and with huge frame steps.
+func test_deer_keeps_clearance_from_walls_and_boxes() -> void:
+	var w := _deer_world()
+	var deer := SpeciesDB.get_species("deer")
+	var c := MotionRules.clearance(deer)
+	var rng := _rng()
+	for a in 12:
+		var dt := 1.0 / 60.0 if a % 3 != 0 else 0.5
+		var pos := _deer_start(w, c, rng)
+		var vel := MotionRules.initial_velocity(deer, rng)
+		for i in 3600:
+			var s := MotionRules.step(pos, vel, deer, w, dt, rng)
+			pos = s[0]; vel = s[1]
+			if not _corners_inside(w, pos, c - 1e-3):
+				fail_test("deer %d within clearance of a wall at step %d: %s" % [a, i, pos])
+				return
+			var bi := _strictly_in_grown_box(w, pos, c)
+			if bi >= 0:
+				fail_test("deer %d within clearance of box %d at step %d: %s" % [a, bi, i, pos])
+				return
+	pass_test("deer kept clearance")
+
+## A deer whose footprint overlaps a box top lands on it (stands on the sofa edge).
+func test_deer_lands_on_box_edge_within_clearance() -> void:
+	var rects: Array[Rect2] = [Rect2(0, 0, 10, 10)]
+	var boxes: Array[AABB] = [AABB(Vector3(4, 0, 4), Vector3(2, 0.45, 1))]
+	var w := CollisionWorld.new(rects, boxes, 2.9)
+	var deer := SpeciesDB.get_species("deer")
+	# Centre 0.5 m beyond the sofa's x end: outside the box, inside its grown footprint.
+	var s := MotionRules.step(Vector3(6.5, 0.455, 4.5), Vector3(0, -1.0, 0), deer, w, 0.01, _rng())  # one substep
+	assert_almost_eq(s[0].y, 0.45, 1e-5, "landed on the sofa top")
+	assert_gt(s[1].y, 0.0)

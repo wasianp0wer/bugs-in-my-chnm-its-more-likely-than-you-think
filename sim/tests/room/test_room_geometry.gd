@@ -97,6 +97,29 @@ func test_spawn_rejects_only_points_inside_boxes() -> void:
 	var expect := 4.0 / RoomGeometry.area() * n
 	assert_gt(above_desk, int(expect * 0.5), "spawns above the desk footprint (expect ~%d)" % int(expect))
 
+## With clearance c the whole square p.xz +- c is in the room and the 3D spawn point is
+## outside every box grown by c in x/z.
+func test_spawn_keeps_clearance() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4242
+	var c := 0.9
+	var column := AABB(Vector3(8, 0, 4), Vector3(0.6, RoomData.CEILING, 0.6))
+	var obs: Array[AABB] = [column]
+	var grown := AABB(column.position - Vector3(c, 0, c), column.size + Vector3(2 * c, 0, 2 * c))
+	var counts: Array[int] = [0, 0, 0, 0]
+	for i in 5000:
+		var p := RoomGeometry.random_spawn_xz(rng, obs, c)
+		for dx in [-c, c]:
+			for dz in [-c, c]:
+				assert_true(RoomGeometry.contains_xz(p + Vector2(dx, dz)), "corner of %s outside" % p)
+		assert_false(_in_box(grown, Vector3(p.x, RoomGeometry.SPAWN_Y, p.y)), "spawn %s near column" % p)
+		for r in RoomData.RECTS.size():
+			if RoomData.RECTS[r].has_point(p):
+				counts[r] += 1
+				break
+	for r in counts.size():
+		assert_gt(counts[r], 0, "rect %d still reachable" % r)
+
 func _in_box(b: AABB, q: Vector3) -> bool:
 	return q.x >= b.position.x and q.x <= b.end.x and q.y >= b.position.y and q.y <= b.end.y \
 			and q.z >= b.position.z and q.z <= b.end.z
