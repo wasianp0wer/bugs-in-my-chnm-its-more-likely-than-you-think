@@ -217,7 +217,7 @@ A gentle glow post-effect may be used so fireflies read as glowing.
 
 ## 11. Calls made by the designer (not confirmed by the user)
 
-- **Exterior walls:** the north wall of 462/472 (mural, no windows) and the east wall of 478 is also exterior. Inferred from the PDF.
+- **Exterior walls:** the north wall of 462/472 (mural, no windows) and the east wall of 478. Inferred from the PDF.
 - **Columns:** 2–4, placed at the plan's internal line junctions.
 - **Doors:** decorative, always closed.
 - **Hop rule:** relaunch at species hop speed on every landing, plus a small random heading turn.
