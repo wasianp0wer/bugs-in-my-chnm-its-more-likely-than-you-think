@@ -1,6 +1,6 @@
 # CHNM Critter Sim
 
-A small Godot 4.7 desktop toy that fills the main room of the Roy Rosenzweig Center for History and New Media (CHNM) with true-scale bouncing animals. Pick a species, type a count (up to tens of thousands), and watch them ricochet around a dollhouse-style cutaway of the office. Every animal is modelled at its real size relative to the room and furniture.
+A small Godot 4.7 desktop toy that fills the main room of the Roy Rosenzweig Center for History and New Media (CHNM) with true-scale bouncing animals. Pick a species, type a count (there is no cap; very large counts just run slower), and watch them ricochet around a dollhouse-style cutaway of the office. Every animal is modelled at its real size relative to the room and furniture.
 
 ## Running from source
 
@@ -12,7 +12,7 @@ godot --path sim
 
 ## Using the builds
 
-Builds are unsigned. Download them from the project's releases or build them yourself (below).
+Builds are unsigned. Use the builds shared alongside this repo (or build them yourself, below).
 
 - **macOS:** unzip `CHNM-Critter-Sim.zip`. Because the app is unsigned, do not double-click it the first time. Right-click (or Control-click) the app and choose **Open**, then confirm.
 - **Windows:** run `CHNM-Critter-Sim.exe`. If SmartScreen warns about an unrecognised app, click **More info**, then **Run anyway**.
