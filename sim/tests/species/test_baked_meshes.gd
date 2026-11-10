@@ -27,6 +27,12 @@ func test_credits_lists_every_species() -> void:
 		assert_true(text.contains(s["credit"]["author"]), "%s author" % s["id"])
 
 
+func test_credits_list_mural() -> void:
+	for path in ["res://CREDITS.md", "res://../CREDITS.md"]:
+		var text := FileAccess.get_file_as_string(path)
+		assert_true(text.contains("founder.jpg"), path)
+
+
 func _box_mesh(size: Vector3) -> ArrayMesh:
 	var bm := BoxMesh.new()
 	bm.size = size
