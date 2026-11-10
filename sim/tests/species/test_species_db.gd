@@ -54,3 +54,14 @@ func test_no_nc_or_sa_license() -> void:
 		var lic: String = s["credit"]["license"]
 		assert_false(lic.contains("NC"), s["id"])
 		assert_false(lic.contains("SA"), s["id"])
+
+
+func test_bake_yaw_valid_and_defaults_to_zero() -> void:
+	assert_eq(SpeciesDB.bake_yaw({"id": "x"}), 0)
+	for s in SpeciesDB.load_all():
+		assert_true(SpeciesDB.bake_yaw(s) in [0, 90, 180, 270], s["id"])
+
+
+func test_json_ends_with_newline() -> void:
+	var f := FileAccess.open(SpeciesDB.DATA_PATH, FileAccess.READ)
+	assert_true(f.get_as_text().ends_with("\n"))
