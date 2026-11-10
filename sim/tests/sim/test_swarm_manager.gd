@@ -32,6 +32,17 @@ func test_shader_compiles() -> void:
 	for want in UNIFORMS:
 		assert_has(names, want, "uniform %s" % want)
 
+## start() mirrors RoomGeometry.random_spawn_xz: reject a spawn only when the 3D point
+## (x, SPAWN_Y, z) is inside a box, not when it is merely above a box footprint.
+func test_shader_spawn_mirrors_room_geometry() -> void:
+	var code := (load(SHADER_PATH) as Shader).code
+	var m := RegEx.create_from_string("const float SPAWN_Y = ([0-9.]+);").search(code)
+	assert_not_null(m)
+	if m:
+		assert_almost_eq(float(m.get_string(1)), RoomGeometry.SPAWN_Y, 1e-6)
+	assert_false(code.contains("in_box_footprint"), "no footprint rejection")
+	assert_true(code.contains("in_any_box(vec3(xz.x, SPAWN_Y, xz.y))"), "3D point rejection")
+
 func test_rect_cdf_is_normalised_area_prefix_sums() -> void:
 	var cdf := SwarmBatch.rect_cdf(_world().to_shader_params())
 	assert_eq(cdf.size(), 8)

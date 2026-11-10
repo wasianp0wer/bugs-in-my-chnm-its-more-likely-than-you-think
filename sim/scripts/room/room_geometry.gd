@@ -1,5 +1,8 @@
 class_name RoomGeometry
 
+## Height animals spawn at before falling (mirrors SPAWN_Y in critter_process.gdshader).
+const SPAWN_Y := 2.8
+
 static func contains_xz(p: Vector2) -> bool:
 	for r in RoomData.RECTS:
 		if p.x >= r.position.x and p.x <= r.end.x and p.y >= r.position.y and p.y <= r.end.y:
@@ -52,6 +55,17 @@ static func column_boxes() -> Array[AABB]:
 		out.append(AABB(Vector3(c.x - s / 2.0, 0.0, c.y - s / 2.0), Vector3(s, RoomData.CEILING, s)))
 	return out
 
+## Faces are solid (inclusive), as in CollisionWorld.box_at.
+static func _inside_any(q: Vector3, boxes: Array[AABB]) -> bool:
+	for b in boxes:
+		var e := b.end
+		if q.x >= b.position.x and q.x <= e.x and q.y >= b.position.y and q.y <= e.y \
+				and q.z >= b.position.z and q.z <= e.z:
+			return true
+	return false
+
+## Area-weighted xz in the room whose spawn point (x, SPAWN_Y, z) is in no box; spawning
+## above a low box (a desk) is fine, the animal rains down onto it.
 static func random_spawn_xz(rng: RandomNumberGenerator, obstacles: Array[AABB]) -> Vector2:
 	var total := area()
 	while true:
@@ -63,12 +77,7 @@ static func random_spawn_xz(rng: RandomNumberGenerator, obstacles: Array[AABB]) 
 				break
 			pick -= cand.get_area()
 		var p := Vector2(rng.randf_range(r.position.x, r.end.x), rng.randf_range(r.position.y, r.end.y))
-		var blocked := false
-		for o in obstacles:
-			if p.x >= o.position.x and p.x <= o.end.x and p.y >= o.position.z and p.y <= o.end.z:
-				blocked = true
-				break
-		if not blocked:
+		if not _inside_any(Vector3(p.x, SPAWN_Y, p.y), obstacles):
 			return p
 	return Vector2.ZERO
 

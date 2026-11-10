@@ -76,9 +76,9 @@ bool entered_side(vec3 q, vec3 old, int axis) {
 	return false;
 }
 
-bool in_box_footprint(vec2 xz) {
+bool in_any_box(vec3 q) {
 	for (int b = 0; b < box_count; b++) {
-		if (xz.x >= box_min[b].x && xz.x <= box_max[b].x && xz.y >= box_min[b].z && xz.y <= box_max[b].z) {
+		if (in_box(q, b)) {
 			return true;
 		}
 	}
@@ -86,7 +86,8 @@ bool in_box_footprint(vec2 xz) {
 }
 
 // Area-weighted point in the room (RoomGeometry.random_spawn_xz), re-sampled up to
-// SPAWN_TRIES times while it falls inside a box footprint.
+// SPAWN_TRIES times while the spawn point (x, SPAWN_Y, z) is inside a box. Spawning
+// above a low box is fine: the animal rains down onto the desk or sofa.
 vec2 spawn_xz(uint s) {
 	vec2 xz = vec2(0.0);
 	for (int t = 0; t < SPAWN_TRIES; t++) {
@@ -101,7 +102,7 @@ vec2 spawn_xz(uint s) {
 		}
 		vec4 r = room_rects[ri];
 		xz = vec2(mix(r.x, r.z, hash01(k + 1u)), mix(r.y, r.w, hash01(k + 2u)));
-		if (!in_box_footprint(xz)) {
+		if (!in_any_box(vec3(xz.x, SPAWN_Y, xz.y))) {
 			break;
 		}
 	}
