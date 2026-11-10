@@ -133,6 +133,23 @@
   }
  },
  {
+  "id": "chicken",
+  "name": "Chicken",
+  "source": "../models/chicken/chicken_quaternius_polypizza_Z3RCoCYss4.glb",
+  "bake_yaw_deg": 0,
+  "body_length_m": 0.4,
+  "motion": "hopper",
+  "speed_mps": 1.5,
+  "hop_height_m": 0.6,
+  "emissive": false,
+  "credit": {
+   "title": "Chicken",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/Z3RCoCYss4",
+   "license": "CC0 1.0"
+  }
+ },
+ {
   "id": "cockroach",
   "name": "Cockroach",
   "source": "../models/cockroach/cockroach_poly_by_google_polypizza_eSCFQN_47V4.glb",

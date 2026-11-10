@@ -3,13 +3,13 @@ extends GutTest
 
 func test_all_species_present() -> void:
 	var all := SpeciesDB.load_all()
-	assert_eq(all.size(), 29)
+	assert_eq(all.size(), 30)
 	var ids := {}
 	for s in all:
 		ids[s["id"]] = true
 		assert_true(s["motion"] in ["hopper", "flyer"], "%s motion" % s["id"])
 		assert_eq(s["mesh_path"], "res://assets/animals/%s.res" % s["id"])
-	assert_eq(ids.size(), 29)
+	assert_eq(ids.size(), 30)
 
 
 func test_anchor_values() -> void:
@@ -28,6 +28,9 @@ func test_anchor_values() -> void:
 	assert_eq(SpeciesDB.hop_speed(wasp), 0.0)
 	assert_true(SpeciesDB.get_species("firefly")["emissive"])
 	assert_eq(SpeciesDB.get_species("ant")["hop_height_m"], 0.005)
+	var chicken := SpeciesDB.get_species("chicken")
+	assert_false(chicken.is_empty(), "chicken exists")
+	assert_eq(chicken.get("motion"), "hopper")
 
 
 func test_flyer_set() -> void:
