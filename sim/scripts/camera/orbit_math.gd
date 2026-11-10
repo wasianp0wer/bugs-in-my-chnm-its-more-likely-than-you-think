@@ -1,0 +1,49 @@
+class_name OrbitMath
+extends RefCounted
+## Pure orbit-camera math. +X east, +Z south, +Y up. Yaw 0 puts the camera
+## south of the target (a +Z offset) looking north.
+
+const ORBIT_RAD_PER_PX := 0.005
+const ZOOM_BASE := 0.9
+const PAN_PER_PX := 0.0015
+const MIN_PITCH := deg_to_rad(20.0)
+const MAX_PITCH := deg_to_rad(89.0)
+const MIN_DISTANCE := 0.03
+const MAX_DISTANCE := 45.0
+const MAX_TARGET_Y := 2.9
+const MIN_CAMERA_Y := 0.05
+
+var bounds: Rect2
+var target: Vector3
+var yaw: float = 0.0
+var pitch: float = deg_to_rad(50.0)
+var distance: float = 30.0
+
+func _init(room_bounds: Rect2) -> void:
+	bounds = room_bounds
+	var c := bounds.get_center()
+	target = Vector3(c.x, 0.5, c.y)
+
+func orbit(dx_px: float, dy_px: float) -> void:
+	yaw -= dx_px * ORBIT_RAD_PER_PX
+	pitch = clampf(pitch + dy_px * ORBIT_RAD_PER_PX, MIN_PITCH, MAX_PITCH)
+
+func zoom(steps: float) -> void:
+	distance = clampf(distance * pow(ZOOM_BASE, steps), MIN_DISTANCE, MAX_DISTANCE)
+
+func pan(dx_px: float, dy_px: float) -> void:
+	var right := Vector3(cos(yaw), 0.0, -sin(yaw))
+	var forward := Vector3(-sin(yaw), 0.0, -cos(yaw))
+	var s := distance * PAN_PER_PX
+	target += (-right * dx_px + forward * dy_px) * s
+	target.x = clampf(target.x, bounds.position.x, bounds.end.x)
+	target.z = clampf(target.z, bounds.position.y, bounds.end.y)
+	target.y = clampf(target.y, 0.0, MAX_TARGET_Y)
+
+func transform() -> Transform3D:
+	var offset := Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * distance
+	var pos := target + offset
+	pos.y = maxf(pos.y, MIN_CAMERA_Y)
+	if pos.is_equal_approx(target):
+		pos.y = target.y + MIN_CAMERA_Y
+	return Transform3D(Basis.IDENTITY, pos).looking_at(target, Vector3.UP)
