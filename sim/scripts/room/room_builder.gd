@@ -192,8 +192,8 @@ static func _add_lighting(root: Node3D) -> void:
 	var sun := DirectionalLight3D.new()
 	sun.name = "Sun"
 	sun.rotation_degrees = Vector3(-135, 0, 0)   # travels south (+z) and down, in through the north bank
-	sun.light_energy = 1.4
-	sun.light_color = Color("fff4dc")
+	sun.light_energy = 1.2
+	sun.light_color = Color("fffaf2")
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 60.0
 	root.add_child(sun)
@@ -203,19 +203,27 @@ static func _add_lighting(root: Node3D) -> void:
 		o.name = "Troffer_%d" % i
 		o.position = Vector3(spots[i].x, 2.6, spots[i].y)
 		o.omni_range = 13.0
-		o.light_energy = 0.9
-		o.light_color = Color("f4f8ff")
+		o.light_energy = 0.45
+		o.light_color = Color("f7f9ff")
 		o.shadow_enabled = false
 		root.add_child(o)
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color("d9dde3")
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color("fff8ee")
-	env.ambient_light_energy = 0.5
+	env.ambient_light_color = Color("f2f4f7")
+	env.ambient_light_energy = 0.65
+	env.tonemap_mode = Environment.TONE_MAPPER_AGX
+	env.tonemap_exposure = 1.35
 	env.glow_enabled = true
 	env.glow_intensity = 0.6
 	env.glow_hdr_threshold = 1.0
+	# Additive so emitters (fireflies, panes) still bloom against the bright daylight
+	# room; screen blend barely shows on light walls. Small levels suit tiny emitters.
+	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
+	env.set_glow_level(1, 1.0)
+	env.set_glow_level(2, 0.6)
+	env.glow_hdr_scale = 4.0
 	var we := WorldEnvironment.new()
 	we.name = "WorldEnvironment"
 	we.environment = env
