@@ -228,3 +228,25 @@ func test_add_zero_is_noop() -> void:
 	await wait_process_frames(1)
 	assert_eq(m.batch_count(), 0)
 	assert_eq(m.count_by_species(), {})
+
+## A huge count is queued as one entry and carved off one batch per frame, so add()
+## returns at once instead of pre-building every batch.
+func test_huge_add_returns_immediately_one_batch_per_frame() -> void:
+	var m := _manager()
+	m.set_process(false)
+	var huge := 10 ** 15
+	var t0 := Time.get_ticks_msec()
+	m.add(SpeciesDB.get_species("flea"), huge)
+	assert_lt(Time.get_ticks_msec() - t0, 500, "add() returns immediately")
+	assert_eq(m.batch_count(), 1, "first batch right away")
+	assert_eq(m.count_by_species(), {"flea": huge})
+	assert_eq(m._pending.size(), 1, "one queued entry, not one per batch")
+	m._process(0.016)
+	assert_eq(m.batch_count(), 2, "one batch per frame")
+	m._process(0.016)
+	assert_eq(m.batch_count(), 3)
+	assert_eq(m.count_by_species(), {"flea": huge})
+	m.clear()
+	assert_eq(m.count_by_species(), {}, "clear drops the remainder")
+	m._process(0.016)
+	assert_eq(m.batch_count(), 0)
