@@ -73,3 +73,13 @@ func test_root_ignores_mouse():
 	assert_eq(hud.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	assert_eq(hud.get_node("%AddCard").mouse_filter, Control.MOUSE_FILTER_STOP)
 	assert_eq(hud.get_node("%CounterCard").mouse_filter, Control.MOUSE_FILTER_STOP)
+
+## Setting the text from code does not emit text_changed, so the quick buttons hide the
+## error themselves once the field holds a valid count.
+func test_quick_button_hides_error():
+	hud.get_node("%CountEdit").text = "abc"
+	hud.get_node("%AddButton").emit_signal("pressed")
+	var err: Label = hud.get_node("%ErrorLabel")
+	assert_true(err.visible)
+	hud.get_node("%Quick1k").emit_signal("pressed")
+	assert_false(err.visible)

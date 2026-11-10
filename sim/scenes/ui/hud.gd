@@ -22,7 +22,9 @@ const ERROR_TEXT := "Enter a whole number like 5000"
 func _ready() -> void:
 	for pair in [["%Quick10", "10"], ["%Quick100", "100"], ["%Quick1k", "1k"], ["%Quick10k", "10k"]]:
 		var text: String = pair[1]
-		get_node(pair[0]).pressed.connect(func() -> void: _count_edit.text = text)
+		get_node(pair[0]).pressed.connect(func() -> void:
+			_count_edit.text = text
+			_error.hide())
 	%AddButton.pressed.connect(_on_add_pressed)
 	%ClearButton.pressed.connect(func() -> void: clear_requested.emit())
 	%CreditsButton.pressed.connect(func() -> void: credits_requested.emit())
