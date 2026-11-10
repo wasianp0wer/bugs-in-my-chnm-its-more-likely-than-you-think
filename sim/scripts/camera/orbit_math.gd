@@ -31,11 +31,21 @@ func orbit(dx_px: float, dy_px: float) -> void:
 func zoom(steps: float) -> void:
 	distance = clampf(distance * pow(ZOOM_BASE, steps), MIN_DISTANCE, MAX_DISTANCE)
 
+## Zoom, and when zooming in, slide the target toward `point` by (1 - 0.9^steps).
+func zoom_toward(steps: float, point: Vector3) -> void:
+	zoom(steps)
+	if steps > 0.0:
+		target = target.lerp(point, 1.0 - pow(ZOOM_BASE, steps))
+		_clamp_target()
+
 func pan(dx_px: float, dy_px: float) -> void:
 	var right := Vector3(cos(yaw), 0.0, -sin(yaw))
 	var forward := Vector3(-sin(yaw), 0.0, -cos(yaw))
 	var s := distance * PAN_PER_PX
 	target += (-right * dx_px + forward * dy_px) * s
+	_clamp_target()
+
+func _clamp_target() -> void:
 	target.x = clampf(target.x, bounds.position.x, bounds.end.x)
 	target.z = clampf(target.z, bounds.position.y, bounds.end.y)
 	target.y = clampf(target.y, 0.0, MAX_TARGET_Y)

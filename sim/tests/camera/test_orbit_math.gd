@@ -47,6 +47,7 @@ func test_pan_clamped_to_bounds() -> void:
 	var m := _make()
 	m.pan(-1000000, -1000000)
 	m.pan(-1000000, -1000000)
+	assert_almost_eq(m.target.x, 31.5, 0.001)
 	assert_between(m.target.x, -0.0001, 31.5001)
 	assert_between(m.target.z, -0.0001, 14.8001)
 	m.pan(1000000, 1000000)
@@ -68,9 +69,59 @@ func test_camera_never_below_floor() -> void:
 	m.distance = 0.03
 	assert_gte(m.transform().origin.y, 0.05)
 
-func test_zoom_in_close_enough_for_flea() -> void:
+func test_zoom_toward_floor_point_converges() -> void:
 	var m := _make()
-	m.zoom(1000)
-	var half_fov := deg_to_rad(50.0) / 2.0
-	var px := 0.0025 / (2.0 * m.distance * tan(half_fov)) * 900.0
+	var p := Vector3(5, 0, 3)
+	for i in 100:
+		m.zoom_toward(1.0, p)
+	assert_almost_eq(m.target, p, Vector3(0.01, 0.01, 0.01))
+
+func test_zoom_toward_desk_point_sets_target_y() -> void:
+	var m := _make()
+	var p := Vector3(15, 0.75, 7)
+	for i in 100:
+		m.zoom_toward(1.0, p)
+	assert_almost_eq(m.target.y, 0.75, 0.01)
+
+func test_zoom_toward_out_leaves_target() -> void:
+	var m := _make()
+	m.distance = 10.0
+	var before := m.target
+	m.zoom_toward(-2.0, Vector3(1, 0, 1))
+	assert_eq(m.target, before)
+	assert_almost_eq(m.distance, 10.0 / 0.81, 0.0001)
+
+func test_zoom_toward_fraction() -> void:
+	var m := _make()
+	var before := m.target
+	var p := Vector3(5, 0, 3)
+	m.zoom_toward(1.0, p)
+	assert_almost_eq(m.target, before.lerp(p, 0.1), Vector3(0.0001, 0.0001, 0.0001))
+	assert_almost_eq(m.distance, 27.0, 0.0001)
+
+func test_zoom_in_close_enough_for_flea() -> void:
+	var cam := DollhouseCamera.new()
+	add_child_autofree(cam)
+	assert_almost_eq(cam.fov, 50.0, 0.0001)
+	var m := _make()
+	var p := Vector3(10, 0, 5)
+	for i in 200:
+		m.zoom_toward(1.0, p)
+	var t := m.transform()
+	var d := t.origin.distance_to(p)
+	var px := 0.0025 / (2.0 * d * tan(deg_to_rad(cam.fov) / 2.0)) * 900.0
 	assert_gte(px, 20.0)
+
+func test_default_pick_point_hits_floor() -> void:
+	var cam := DollhouseCamera.new()
+	add_child_autofree(cam)
+	var hit: Variant = cam.pick_point.call(Vector3(1, 5, 2), Vector3(0, -1, 0))
+	assert_eq(hit, Vector3(1, 0, 2))
+	assert_null(cam.pick_point.call(Vector3(1, 5, 2), Vector3(0, 1, 0)))
+
+func test_moved_emitted_deferred_after_ready() -> void:
+	var cam := DollhouseCamera.new()
+	watch_signals(cam)
+	add_child_autofree(cam)
+	await get_tree().process_frame
+	assert_signal_emit_count(cam, "moved", 2)
