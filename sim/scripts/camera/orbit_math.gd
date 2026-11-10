@@ -12,6 +12,8 @@ const MIN_DISTANCE := 0.03
 const MAX_DISTANCE := 45.0
 const MAX_TARGET_Y := 2.9
 const MIN_CAMERA_Y := 0.05
+## The camera stays within the room bounds grown by this much horizontally (m).
+const CAMERA_MARGIN := 20.0
 
 var bounds: Rect2
 var target: Vector3
@@ -62,6 +64,9 @@ func transform() -> Transform3D:
 	var offset := Vector3(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * distance
 	var pos := target + offset
 	pos.y = maxf(pos.y, MIN_CAMERA_Y)
+	var outer := bounds.grow(CAMERA_MARGIN)
+	pos.x = clampf(pos.x, outer.position.x, outer.end.x)
+	pos.z = clampf(pos.z, outer.position.y, outer.end.y)
 	if pos.is_equal_approx(target):
 		pos.y = target.y + MIN_CAMERA_Y
 	return Transform3D(Basis.IDENTITY, pos).looking_at(target, Vector3.UP)

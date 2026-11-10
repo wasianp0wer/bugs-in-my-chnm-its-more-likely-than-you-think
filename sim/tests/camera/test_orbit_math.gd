@@ -151,3 +151,15 @@ func test_set_view_clamps_like_orbit_math() -> void:
 	assert_true(o.y >= OrbitMath.MIN_CAMERA_Y - 1e-4)
 	assert_almost_eq(cam.transform.basis.z.dot(Vector3.UP), sin(OrbitMath.MIN_PITCH), 1e-3, "pitch clamped")
 	assert_true(o.distance_to(Vector3(b.end.x, OrbitMath.MAX_TARGET_Y, b.position.y)) <= OrbitMath.MIN_DISTANCE + 1e-3, "target and distance clamped")
+
+## However far out it orbits, the camera stays within the room bounds expanded by 20 m.
+func test_camera_horizontal_clamped_to_bounds_plus_margin() -> void:
+	var m := _make()
+	var outer := BOUNDS.grow(20.0)
+	for target in [Vector3(0, 0, 0), Vector3(31.5, 0, 14.8), Vector3(0, 0, 14.8), Vector3(31.5, 0, 0)]:
+		for yaw_deg in range(0, 360, 15):
+			m.set_view(target, deg_to_rad(yaw_deg), 0.0, 1000.0)
+			var o := m.transform().origin
+			assert_between(o.x, outer.position.x - 1e-4, outer.end.x + 1e-4, "x at yaw %d" % yaw_deg)
+			assert_between(o.z, outer.position.y - 1e-4, outer.end.y + 1e-4, "z at yaw %d" % yaw_deg)
+	assert_eq(OrbitMath.CAMERA_MARGIN, 20.0)
