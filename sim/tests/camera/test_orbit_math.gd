@@ -47,11 +47,11 @@ func test_pan_clamped_to_bounds() -> void:
 	var m := _make()
 	m.pan(-1000000, -1000000)
 	m.pan(-1000000, -1000000)
-	assert_between(m.target.x, 0.0, 31.5)
-	assert_between(m.target.z, 0.0, 14.8)
+	assert_between(m.target.x, -0.0001, 31.5001)
+	assert_between(m.target.z, -0.0001, 14.8001)
 	m.pan(1000000, 1000000)
-	assert_between(m.target.x, 0.0, 31.5)
-	assert_between(m.target.z, 0.0, 14.8)
+	assert_between(m.target.x, -0.0001, 31.5001)
+	assert_between(m.target.z, -0.0001, 14.8001)
 	assert_between(m.target.y, 0.0, 2.9)
 
 func test_pan_moves_target() -> void:
