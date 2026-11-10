@@ -47,6 +47,9 @@ The source is `floor_plan/Research-Fourth-Floor-Plan.pdf`, a GMU "Architectural 
 ### One open room
 The user's decision: **one open room.** The plan's internal lines between 461, 462, 472, 479, 470 and 478 are not modelled as walls; they are most likely space-accounting divisions. This matches the photos of the former "Robot Room", which show a single large open space. The whole outlined polygon is one space that animals roam freely, broken up only by **2–4 square drywall-clad columns** about 0.6 m across (seen in photo 01). Their positions are an inference: put them where the plan's interior lines meet.
 
+> **2026-11-09 (Task 16, user request):** the columns were removed. There are no columns and `column_boxes()` is gone; the cutaway rule "columns are never cut" no longer applies. A group table (no chairs) now stands against the east wall under the top-right window (z = 3.7).
+
+
 ### Walls, windows, ceiling
 - **Perimeter walls:** all of them are full height (2.9 m). There are no interior walls.
 - **Exterior walls:** these are inferred from the PDF. The **north back wall** (one straight wall across the 462/472 block and the east band) is on the building's outer edge, and so is the **east wall of 478**. Every other perimeter edge borders offices (473–477), the corridor (CORR1) or the pantry, so it is interior.
@@ -139,6 +142,7 @@ These are the user's decisions:
   - room polygon walls
   - floor and lid planes
   - columns
+  - (columns removed 2026-11-09, Task 16)
   - furniture boxes
 
   Pass the static geometry to the shader as uniforms or a small data texture. Particles never expire: they live forever and are added by raising the emitter's particle count, or with an equivalent approach.
@@ -221,6 +225,9 @@ A gentle glow post-effect may be used so fireflies read as glowing.
 
 - **Exterior walls:** the north back wall (mural, no windows) and the east wall of 478. Inferred from the PDF.
 - **Columns:** 2–4, placed at the plan's internal line junctions.
+
+> **2026-11-09 (Task 16, user request):** the columns were removed. There are no columns and `column_boxes()` is gone; the cutaway rule "columns are never cut" no longer applies. A group table (no chairs) now stands against the east wall under the top-right window (z = 3.7).
+
 - **Doors:** decorative, always closed.
 - **Hop rule:** relaunch at species hop speed on every landing, plus a small random heading turn.
 - **Performance target:** "smooth" means ≥ 60 fps at 50k on a recent laptop in the desktop build.
