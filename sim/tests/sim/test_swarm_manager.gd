@@ -7,7 +7,7 @@ const UNIFORMS := [
 ]
 
 func _world() -> CollisionWorld:
-	var boxes: Array[AABB] = RoomGeometry.column_boxes()
+	var boxes: Array[AABB] = []
 	boxes.append(AABB(Vector3(15, 0, 5), Vector3(1.5, 0.75, 0.75)))
 	return CollisionWorld.new(RoomData.RECTS, boxes, RoomData.CEILING)
 

@@ -52,16 +52,6 @@ static func build() -> Node3D:
 	root.add_child(_build_floor())
 	for w in RoomGeometry.walls():
 		root.add_child(_build_wall(w))
-	var boxes := RoomGeometry.column_boxes()
-	for i in boxes.size():
-		var mi := MeshInstance3D.new()
-		mi.name = "Column_%d" % i
-		var bm := BoxMesh.new()
-		bm.size = boxes[i].size
-		mi.mesh = bm
-		mi.position = boxes[i].get_center()
-		mi.material_override = _mat("column", C_WALL)
-		root.add_child(mi)
 	_add_lighting(root)
 	return root
 

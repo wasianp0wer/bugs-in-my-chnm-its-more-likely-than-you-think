@@ -46,7 +46,7 @@ func test_counts_within_spec_ranges() -> void:
 	var ranges := {
 		"sofa": [2, 3], "tub_chair": [1, 2], "sling_chair": [1, 2], "coffee_table": [1, 1],
 		"credenza": [1, 1], "owl_lamp": [1, 1], "wardrobe": [3, 5], "tv_stand": [1, 1],
-		"whiteboard": [1, 2], "av_cart": [1, 1], "desk": [6, 12], "group_table": [0, 4],
+		"whiteboard": [1, 2], "av_cart": [1, 1], "desk": [6, 12], "group_table": [1, 4],
 		"task_chair": [10, 99], "stack_chair": [3, 4], "bookcase": [1, 3], "plant": [1, 2],
 		"kitchenette": [1, 1], "conference_table": [1, 1]}
 	var counts := {}
@@ -73,14 +73,8 @@ func test_all_items_inside_room() -> void:
 
 func test_no_overlaps_except_chairs_at_desks() -> void:
 	var layout := FurnitureFactory.load_layout()
-	var columns: Array[Rect2] = []
-	for c in RoomGeometry.column_boxes():
-		columns.append(_footprint(c))
 	for i in layout.size():
 		var a: Dictionary = layout[i]
-		for ra in _item_rects(a):
-			for c in columns:
-				assert_false(_overlap(ra, c), "%s at %s hits a column" % [a.type, a.pos])
 		for j in range(i + 1, layout.size()):
 			var b: Dictionary = layout[j]
 			if _allowed_overlap(a, b) or _allowed_overlap(b, a):
@@ -154,8 +148,6 @@ func test_spawnable_area_remains() -> void:
 	var used := 0.0
 	for b in FurnitureFactory.all_boxes():
 		used += b.size.x * b.size.z
-	for c in RoomGeometry.column_boxes():
-		used += c.size.x * c.size.z
 	var free := RoomGeometry.area() - used
 	assert_true(free >= 0.6 * RoomGeometry.area(), "free %.1f of %.1f" % [free, RoomGeometry.area()])
 
@@ -230,8 +222,7 @@ func test_boxes_have_positive_size() -> void:
 		assert_true(b.size.x > 0.0 and b.size.y > 0.0 and b.size.z > 0.0, "positive size %s" % b)
 
 func test_box_budget_for_shader() -> void:
-	var n := FurnitureFactory.all_boxes().size() + RoomGeometry.column_boxes().size()
-	assert_eq(RoomGeometry.column_boxes().size(), 4)
+	var n := FurnitureFactory.all_boxes().size()
 	assert_true(n <= 128, "total boxes %d" % n)
 
 # --- the user's description of the real room (Task 13) -----------------------
@@ -366,12 +357,11 @@ func test_conference_table_buildable() -> void:
 const BACK_WALL_CLEAR := 0.5
 
 ## "There are no desks against the back wall": no desk, group table or task chair within
-## 0.5 m of z = 0, and the group tables that stood along it (with their chairs) are gone.
+## 0.5 m of z = 0, and (Task 16 adds one group table on the east wall, which is not the back wall).
 func test_no_desks_against_back_wall() -> void:
 	for item in FurnitureFactory.load_layout():
 		if item.type in ["desk", "group_table", "task_chair"]:
 			assert_gt(_item_footprint(item).position.y, BACK_WALL_CLEAR - EPS, "%s at %s against the back wall" % [item.type, item.pos])
-	assert_eq(_of_type("group_table").size(), 0, "group tables removed")
 
 func _gap_to_segment(r: Rect2, a: Vector2, b: Vector2) -> float:
 	# Axis-aligned segment as a zero-thickness rect.
@@ -385,3 +375,40 @@ func test_bookcases_against_a_wall() -> void:
 		for w in RoomGeometry.walls():
 			best = minf(best, _gap_to_segment(r, w.a, w.b))
 		assert_lte(best, WALL_SNAP, "bookcase at %s against a wall" % [bc.pos])
+
+# --- the table under the top-right window (Task 16) ---------------------------
+
+const WINDOW_SILL := 0.75
+const TABLE_CLEARANCE := 0.3
+
+## The window in the top right (camera south looking north) is the east wall's first one,
+## at 1/4 of edge 3: z = 3.7.
+func _top_right_window_z() -> float:
+	var w: Dictionary = RoomGeometry.walls()[3]
+	return (w.a as Vector2).lerp(w.b, RoomBuilder.PLAIN_WINDOW_FRACTIONS[0]).y
+
+func test_table_under_top_right_window() -> void:
+	var tables := _of_type("group_table")
+	assert_gte(tables.size(), 1, "a group table exists")
+	var found := false
+	for t in tables:
+		var r := _item_footprint(t)
+		if absf(r.get_center().y - _top_right_window_z()) > 0.2:
+			continue
+		found = true
+		assert_almost_eq(r.end.x, 31.5, 0.1, "east face on the east wall")
+		assert_gt(r.size.y, r.size.x, "long axis along z")
+		var top := 0.0
+		for b in FurnitureFactory.collision_boxes(t):
+			top = maxf(top, b.end.y)
+		assert_lte(top, WINDOW_SILL + EPS, "top at or below the sill")
+	assert_true(found, "a group table centred on the window z")
+
+func test_nothing_crowds_the_window_table() -> void:
+	for t in _of_type("group_table"):
+		var zone := _item_footprint(t).grow(TABLE_CLEARANCE - EPS)
+		for item in FurnitureFactory.load_layout():
+			if item == t or item.type in CHAIRS:
+				continue
+			for r in _item_rects(item):
+				assert_false(_overlap(r, zone), "%s at %s within 0.3 m of the table" % [item.type, item.pos])

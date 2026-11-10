@@ -28,6 +28,9 @@
   - New animals spawn at y = 2.8 at uniformly random x/z inside the room, and never inside a box.
 - **Population:** no cap on animal count.
 - **Cutaway:** walls between the camera and the room interior show as a 0.5 m stub but still collide at full height. Columns are never cut.
+
+> **2026-11-09 (Task 16, user request):** the columns were removed. There are no columns and `column_boxes()` is gone; the cutaway rule "columns are never cut" no longer applies. A group table (no chairs) now stands against the east wall under the top-right window (z = 3.7).
+
 - **HUD:** floating cards.
   - Add card, top left: species dropdown (alphabetical), quick buttons 10/100/1k/10k that set the count field, a count field, and an Add button.
   - Counter card, top right: per-species counts, the total, FPS, a Clear button, and an ⓘ credits button.

@@ -48,13 +48,6 @@ static func walls() -> Array[Dictionary]:
 		})
 	return out
 
-static func column_boxes() -> Array[AABB]:
-	var out: Array[AABB] = []
-	var s := RoomData.COLUMN_SIZE
-	for c in RoomData.COLUMNS:
-		out.append(AABB(Vector3(c.x - s / 2.0, 0.0, c.y - s / 2.0), Vector3(s, RoomData.CEILING, s)))
-	return out
-
 ## Some box grown by c in x/z (not y) contains q; faces are solid (inclusive), as in
 ## MotionRules._in_box_c.
 static func _inside_any(q: Vector3, boxes: Array[AABB], c: float) -> bool:

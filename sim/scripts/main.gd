@@ -30,8 +30,7 @@ func _ready() -> void:
 	furniture = FurnitureFactory.build_all()
 	add_child(furniture)
 
-	var boxes: Array[AABB] = RoomGeometry.column_boxes()
-	boxes.append_array(FurnitureFactory.all_boxes())
+	var boxes: Array[AABB] = FurnitureFactory.all_boxes()
 	world = CollisionWorld.new(RoomData.RECTS, boxes, RoomData.CEILING)
 	assert(swarms.global_transform == Transform3D.IDENTITY, "particles are simulated in world space")
 	swarms.configure(world)

@@ -100,9 +100,8 @@ func test_doors_present() -> void:
 	for d in RoomData.DOORS:
 		assert_not_null(room.get_node_or_null("Wall_%d/Full/Door_%d" % [d.edge, d.edge]))
 
-func test_columns_present() -> void:
-	for i in RoomData.COLUMNS.size():
-		assert_not_null(room.get_node_or_null("Column_%d" % i))
+func test_no_columns() -> void:
+	assert_eq(room.find_children("Column*", "", true, false).size(), 0)
 
 func test_lights_and_environment() -> void:
 	assert_true(room.get_node("Sun") is DirectionalLight3D)
