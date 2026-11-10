@@ -125,3 +125,29 @@ func test_moved_emitted_deferred_after_ready() -> void:
 	add_child_autofree(cam)
 	await get_tree().process_frame
 	assert_signal_emit_count(cam, "moved", 2)
+
+func test_set_view_places_camera_and_emits_moved() -> void:
+	var cam := DollhouseCamera.new()
+	add_child_autofree(cam)
+	await get_tree().process_frame
+	watch_signals(cam)
+	var target := Vector3(14.6, 0.75, 4.3)
+	cam.set_view(target, PI, deg_to_rad(30.0), 2.0)
+	var m := OrbitMath.new(cam.room_bounds)
+	m.target = target
+	m.yaw = PI
+	m.pitch = deg_to_rad(30.0)
+	m.distance = 2.0
+	assert_almost_eq(cam.transform.origin, m.transform().origin, Vector3.ONE * 1e-4)
+	assert_true(cam.transform.origin.z < target.z, "yaw PI puts the camera north")
+	assert_signal_emitted_with_parameters(cam, "moved", [cam.transform.origin])
+
+func test_set_view_clamps_like_orbit_math() -> void:
+	var cam := DollhouseCamera.new()
+	add_child_autofree(cam)
+	cam.set_view(Vector3(100, 10, -50), 0.0, deg_to_rad(5.0), 0.0001)
+	var o := cam.transform.origin
+	var b := cam.room_bounds
+	assert_true(o.y >= OrbitMath.MIN_CAMERA_Y - 1e-4)
+	assert_almost_eq(cam.transform.basis.z.dot(Vector3.UP), sin(OrbitMath.MIN_PITCH), 1e-3, "pitch clamped")
+	assert_true(o.distance_to(Vector3(b.end.x, OrbitMath.MAX_TARGET_Y, b.position.y)) <= OrbitMath.MIN_DISTANCE + 1e-3, "target and distance clamped")

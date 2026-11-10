@@ -38,12 +38,7 @@ func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(dir)
 	for name in PRESETS:
 		var p: Array = PRESETS[name]
-		var m := _main.camera._math
-		m.target = p[0]
-		m.yaw = deg_to_rad(p[1])
-		m.pitch = deg_to_rad(p[2])
-		m.distance = p[3]
-		_main.camera._apply()
+		_main.camera.set_view(p[0], deg_to_rad(p[1]), deg_to_rad(p[2]), p[3])
 		await _frames(SHOT_FRAMES)
 		var path := dir.path_join("%s.png" % name)
 		root.get_texture().get_image().save_png(path)

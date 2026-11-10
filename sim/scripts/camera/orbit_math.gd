@@ -38,6 +38,14 @@ func zoom_toward(steps: float, point: Vector3) -> void:
 		target = target.lerp(point, 1.0 - pow(ZOOM_BASE, steps))
 		_clamp_target()
 
+## Jump to an explicit view; pitch, distance and target are clamped as usual.
+func set_view(p_target: Vector3, p_yaw: float, p_pitch: float, p_distance: float) -> void:
+	target = p_target
+	yaw = p_yaw
+	pitch = clampf(p_pitch, MIN_PITCH, MAX_PITCH)
+	distance = clampf(p_distance, MIN_DISTANCE, MAX_DISTANCE)
+	_clamp_target()
+
 func pan(dx_px: float, dy_px: float) -> void:
 	var right := Vector3(cos(yaw), 0.0, -sin(yaw))
 	var forward := Vector3(-sin(yaw), 0.0, -cos(yaw))

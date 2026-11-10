@@ -42,8 +42,8 @@ func test_cutaway_initial_view_stubs_south_walls() -> void:
 func test_cutaway_follows_camera() -> void:
 	var m := _main()
 	await wait_process_frames(2)
-	m.camera._math.yaw = PI  # orbit to the north of the room
-	m.camera._apply()
+	var c := RoomGeometry.bounds().get_center()
+	m.camera.set_view(Vector3(c.x, 0.5, c.y), PI, deg_to_rad(50.0), 30.0)  # north of the room
 	assert_true(_stubbed(m, 2), "north wall stubbed")
 	assert_false(_stubbed(m, 8), "south wall back to full height")
 
