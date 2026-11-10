@@ -397,7 +397,8 @@ func test_table_under_top_right_window() -> void:
 			continue
 		found = true
 		assert_almost_eq(r.end.x, 31.5, 0.1, "east face on the east wall")
-		assert_gt(r.size.y, r.size.x, "long axis along z")
+		assert_almost_eq(r.size.x, 1.8, EPS, "square table: 1.8 m deep")
+		assert_almost_eq(r.size.y, 1.8, EPS, "square table: 1.8 m along the wall")
 		var top := 0.0
 		for b in FurnitureFactory.collision_boxes(t):
 			top = maxf(top, b.end.y)
