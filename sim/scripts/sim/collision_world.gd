@@ -38,8 +38,6 @@ func to_shader_params() -> Dictionary:
 	for r in rects:
 		rr.append(Vector4(r.position.x, r.position.y, r.end.x, r.end.y))
 	rr.resize(MAX_RECTS)
-	for i in range(rects.size(), MAX_RECTS):
-		rr[i] = Vector4.ZERO
 	var bmin: Array[Vector3] = []
 	var bmax: Array[Vector3] = []
 	for b in boxes:
@@ -47,9 +45,6 @@ func to_shader_params() -> Dictionary:
 		bmax.append(b.end)
 	bmin.resize(MAX_BOXES)
 	bmax.resize(MAX_BOXES)
-	for i in range(boxes.size(), MAX_BOXES):
-		bmin[i] = Vector3.ZERO
-		bmax[i] = Vector3.ZERO
 	return {
 		"room_rects": rr, "room_rect_count": rects.size(),
 		"box_min": bmin, "box_max": bmax, "box_count": boxes.size(),

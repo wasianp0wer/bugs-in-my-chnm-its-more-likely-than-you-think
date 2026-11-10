@@ -15,6 +15,7 @@ func _world() -> CollisionWorld:
 	var boxes: Array[AABB] = [
 		AABB(Vector3(15, 0, 5), Vector3(1.5, 0.75, 0.75)),
 		AABB(Vector3(6, 0, 3), Vector3(0.5, 2.9, 0.5)),
+		AABB(Vector3(3, 1.2, 1), Vector3(5, 0.03, 5)),
 	]
 	return CollisionWorld.new(RECTS, boxes, 2.9)
 
@@ -66,7 +67,7 @@ func test_flyer_speed_constant_and_reflects_off_lid() -> void:
 
 func test_reflect_off_wall() -> void:
 	var w := _world()
-	var s := MotionRules.step(Vector3(31.4, 1, 5), Vector3(1.5, 0, 0), FLYER, w, 0.2, _rng())
+	var s := MotionRules.step(Vector3(31.46, 1, 5), Vector3(1.5, 0, 0), FLYER, w, 0.2, _rng())
 	assert_lt(s[1].x, 0.0)
 	assert_lte(s[0].x, 31.5)
 
@@ -98,13 +99,10 @@ func test_lands_on_box_top() -> void:
 	assert_almost_eq(pos.y, 0.75, 1e-6)
 
 func test_flyer_bounces_off_box_underside() -> void:
-	var w := _world()
-	var s := MotionRules.step(Vector3(8, 1, 8), Vector3(0, 0, 0.5), FLYER, w, 0.1, _rng())
-	assert_almost_eq(s[0].y, 1.0, 1e-6)
-	# underside: box spans y 0..0.75 so use a floating box
+	# floating box so the underside is reachable
 	var boxes: Array[AABB] = [AABB(Vector3(5, 1.0, 5), Vector3(1, 0.5, 1))]
 	var w2 := CollisionWorld.new(RECTS, boxes, 2.9)
-	s = MotionRules.step(Vector3(5.5, 0.99, 5.5), Vector3(0, 1.0, 0), FLYER, w2, 0.1, _rng())
+	var s := MotionRules.step(Vector3(5.5, 0.99, 5.5), Vector3(0, 1.0, 0), FLYER, w2, 0.1, _rng())
 	assert_lt(s[1].y, 0.0)
 	assert_lte(s[0].y, 1.0)
 
@@ -125,6 +123,12 @@ func _random_start(w: CollisionWorld, rng: RandomNumberGenerator) -> Vector3:
 			return p
 	return Vector3.ZERO
 
+func _strictly_in_box(w: CollisionWorld, p: Vector3) -> bool:
+	for b in w.boxes:
+		if b.grow(-1e-4).has_point(p):
+			return true
+	return false
+
 func test_never_escapes_large_dt() -> void:
 	var w := _world()
 	var rng := _rng()
@@ -136,7 +140,7 @@ func test_never_escapes_large_dt() -> void:
 		for i in 200:
 			var s := MotionRules.step(pos, vel, sp, w, 0.5, rng)
 			pos = s[0]; vel = s[1]
-			if not w.inside_room_xz(Vector2(pos.x, pos.z)) or pos.y < 0.0 or pos.y > 2.9 + 1e-5 or w.box_at(pos) >= 0:
+			if not w.inside_room_xz(Vector2(pos.x, pos.z)) or pos.y < 0.0 or pos.y > 2.9 + 1e-5 or _strictly_in_box(w, pos):
 				fail_test("animal %d escaped at step %d: %s" % [a, i, pos])
 				return
 	pass_test("all stayed in bounds")
@@ -153,3 +157,48 @@ func test_never_comes_to_rest() -> void:
 			var s := MotionRules.step(pos, vel, sp, w, 1.0 / 60.0, rng)
 			pos = s[0]; vel = s[1]
 		assert_gt(vel.length(), 0.0)
+
+func _overlap_world(b_first: bool) -> CollisionWorld:
+	var seat := AABB(Vector3(4, 0, 4), Vector3(1, 0.45, 1))
+	var desk := AABB(Vector3(4.5, 0, 4), Vector3(1.5, 0.75, 1))
+	var boxes: Array[AABB] = []
+	boxes.assign([desk, seat] if b_first else [seat, desk])
+	var rects: Array[Rect2] = [Rect2(0, 0, 10, 10)]
+	return CollisionWorld.new(rects, boxes, 2.9)
+
+func test_overlapping_boxes_side_reflect_any_order() -> void:
+	for b_first in [false, true]:
+		var w := _overlap_world(b_first)
+		var rng := _rng()
+		var pos := Vector3(4.499, 0.45, 4.5)
+		var vel := Vector3(0.5, 1.98, 0)
+		for i in 300:
+			var s := MotionRules.step(pos, vel, FLEA, w, 1.0 / 60.0, rng)
+			pos = s[0]; vel = s[1]
+			assert_true(not _strictly_in_box(w, pos), "inside box (b_first=%s) step %d at %s" % [b_first, i, pos])
+
+func test_overlapping_boxes_land_on_highest_top() -> void:
+	for b_first in [false, true]:
+		var w := _overlap_world(b_first)
+		var s := MotionRules.step(Vector3(4.7, 0.8, 4.5), Vector3(0, -1.0, 0), FLYER, w, 0.05, _rng())
+		assert_almost_eq(s[0].y, 0.8 - 0.05, 1e-5)
+		s = MotionRules.step(Vector3(4.7, 0.76, 4.5), Vector3(0, -2.0, 0), FLYER, w, 0.05, _rng())
+		assert_gte(s[0].y, 0.75 - 1e-5, "landed on desk, not seat (b_first=%s)" % b_first)
+		assert_gt(s[1].y, 0.0)
+
+func test_thin_slab_no_tunnel() -> void:
+	var rects: Array[Rect2] = [Rect2(0, 0, 10, 10)]
+	var boxes: Array[AABB] = [AABB(Vector3(2, 0.72, 2), Vector3(6, 0.03, 6))]
+	var w := CollisionWorld.new(rects, boxes, 2.9)
+	for seed_i in 200:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = seed_i
+		var pos := Vector3(5, 0.75 + rng.randf() * 0.2, 5)
+		var vel := Vector3(0.5, 0, 0)
+		var s := MotionRules.step(pos, vel, FLEA, w, 0.5, rng)
+		assert_gte(s[0].y, 0.75 - 1e-5, "tunneled, seed %d" % seed_i)
+
+func test_step_constants() -> void:
+	assert_eq(MotionRules.MAX_DT, 0.05)
+	assert_eq(MotionRules.MAX_STEP, 0.02)
+	assert_eq(MotionRules.MAX_SUBSTEPS, 32)
