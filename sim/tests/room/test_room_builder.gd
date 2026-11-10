@@ -48,11 +48,11 @@ func test_wall_inner_face_on_outline() -> void:
 	assert_almost_eq(max_z, 0.0, 0.001)
 
 func test_two_plain_windows_on_east_wall() -> void:
-	var n5 := 0
-	for m in _meshes(room.get_node("Wall_5/Full")):
+	var n3 := 0
+	for m in _meshes(room.get_node("Wall_3/Full")):
 		if String(m.name).begins_with("Pane"):
-			n5 += 1
-	assert_eq(n5, 2)
+			n3 += 1
+	assert_eq(n3, 2)
 
 func test_no_window_panes_on_edge_2() -> void:
 	for m in _meshes(room.get_node("Wall_2")):
@@ -76,6 +76,12 @@ func test_mural_present_on_back_wall() -> void:
 	assert_gte(bb.position.x, 2.9)
 	assert_lte(bb.end.x, 13.1)
 	assert_almost_eq(bb.size.x / bb.size.y, float(tex.get_width()) / tex.get_height(), 0.01 * tex.get_width() / tex.get_height())
+
+## Flattening the back wall extends edge 2 to x = 31.5; the mural must not slide with it.
+func test_mural_position_unchanged() -> void:
+	var bb := _aabb_of(room.get_node("Wall_2/Full/Mural") as MeshInstance3D)
+	assert_almost_eq(bb.position.x, 9.55, 0.02)
+	assert_almost_eq(bb.end.x, 12.8, 0.02)
 
 func test_mural_faces_room_unmirrored() -> void:
 	var mural := room.get_node("Wall_2/Full/Mural") as MeshInstance3D
@@ -111,9 +117,9 @@ func test_lights_and_environment() -> void:
 	assert_almost_eq(env.glow_hdr_threshold, 1.0, 0.0001)
 
 func test_cutaway_toggles() -> void:
-	Cutaway.apply(room, PackedInt32Array([2, 5]))
+	Cutaway.apply(room, PackedInt32Array([2, 3]))
 	for i in RoomData.OUTLINE.size():
-		var f := i == 2 or i == 5
+		var f := i == 2 or i == 3
 		assert_eq((room.get_node("Wall_%d/Full" % i) as Node3D).visible, not f, "full %d" % i)
 		assert_eq((room.get_node("Wall_%d/Stub" % i) as Node3D).visible, f, "stub %d" % i)
 

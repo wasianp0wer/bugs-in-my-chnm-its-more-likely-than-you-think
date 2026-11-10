@@ -1,13 +1,13 @@
 extends GutTest
 
 func test_contains_points() -> void:
-	for p in [Vector2(1, 8), Vector2(5, 1), Vector2(20, 5), Vector2(30, 14)]:
+	for p in [Vector2(1, 8), Vector2(5, 1), Vector2(20, 5), Vector2(30, 14), Vector2(20, 1), Vector2(30, 0.5)]:
 		assert_true(RoomGeometry.contains_xz(p), "inside %s" % p)
 	for p in [Vector2(1, 1), Vector2(20, 13), Vector2(32, 5), Vector2(15, 12), Vector2(-0.1, 8)]:
 		assert_false(RoomGeometry.contains_xz(p), "outside %s" % p)
 
 func test_area() -> void:
-	assert_almost_eq(RoomGeometry.area(), 294.0, 1.0)
+	assert_almost_eq(RoomGeometry.area(), 365.9, 1.0)
 	var pts := RoomData.OUTLINE
 	var s := 0.0
 	for i in pts.size():
@@ -15,6 +15,22 @@ func test_area() -> void:
 		var b := pts[(i + 1) % pts.size()]
 		s += a.x * b.y - b.x * a.y
 	assert_almost_eq(absf(s) / 2.0, RoomGeometry.area(), 0.01)
+
+## The user's request: the back wall is one straight wall, no alcove.
+func test_back_wall_is_flat() -> void:
+	var on_z0: Array[Dictionary] = []
+	for w in RoomGeometry.walls():
+		if is_equal_approx(w.a.y, 0.0) and is_equal_approx(w.b.y, 0.0):
+			on_z0.append(w)
+	assert_eq(on_z0.size(), 1, "walls on z = 0")
+	if on_z0.size() == 1:
+		var w: Dictionary = on_z0[0]
+		assert_almost_eq(minf(w.a.x, w.b.x), 2.9, 0.001)
+		assert_almost_eq(maxf(w.a.x, w.b.x), 31.5, 0.001)
+		assert_eq(w.index, RoomData.MURAL_EDGE)
+
+func test_doors_on_named_edges() -> void:
+	assert_eq(RoomData.DOORS, [{"edge": 6, "center": 16.5}, {"edge": 7, "center": 8.3}])
 
 func test_bounds() -> void:
 	assert_true(RoomGeometry.bounds().is_equal_approx(Rect2(0, 0, 31.5, 14.8)))
@@ -34,7 +50,7 @@ func test_exterior_flags() -> void:
 	for w in RoomGeometry.walls():
 		if w.exterior:
 			ext.append(w.index)
-	assert_eq(ext, [2, 5] as Array[int])
+	assert_eq(ext, [2, 3] as Array[int])
 	var w2: Dictionary = RoomGeometry.walls()[2]
 	assert_eq(w2.a.y, 0.0)
 	assert_eq(w2.b.y, 0.0)
@@ -127,5 +143,5 @@ func _in_box(b: AABB, q: Vector3) -> bool:
 func test_walls_facing_camera() -> void:
 	var f := RoomGeometry.walls_facing_camera(Vector3(15, 10, -20))
 	assert_true(f.has(2))
-	assert_false(f.has(8))
-	assert_false(f.has(9))
+	assert_false(f.has(6))
+	assert_false(f.has(7))

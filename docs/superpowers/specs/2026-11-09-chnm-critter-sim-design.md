@@ -39,6 +39,7 @@ The source is `floor_plan/Research-Fourth-Floor-Plan.pdf`, a GMU "Architectural 
 | South-east extension | 470, 478 (lower, toward CORR1) | 11.1 × 4.1 m |
 
 - **Bounding box:** about 32 × 15 m, about 290 m².
+- **Flat back wall (the user's correction):** the real back wall is flat, with no alcove. The east band extends north to the 462/472 block's north wall, so the sim's band is 18.4 × 10.7 m and the whole north wall (x 2.9 to 31.5) is one straight wall at z = 0. The sim's outline is (0, 5.9), (2.9, 5.9), (2.9, 0), (31.5, 0), (31.5, 14.8), (20.3, 14.8), (20.3, 10.7), (0, 10.7), and its floor area is 365.9 m². See `floor_plan/DIMENSIONS.md`.
 - **Ceiling height:** 2.9 m (9.5 ft), assumed.
 - **Scale:** 1 Godot unit = 1 metre. All animals and furniture are at true-to-life size.
 - **Accuracy:** about ±10–15%, because the scale is derived from the OpenStreetMap footprint. Trace the polygon from the PDF and keep all room geometry in one data file (or scene), so the dimensions can be corrected later without touching code.
@@ -48,8 +49,8 @@ The user's decision: **one open room.** The plan's internal lines between 461, 4
 
 ### Walls, windows, ceiling
 - **Perimeter walls:** all of them are full height (2.9 m). There are no interior walls.
-- **Exterior walls:** these are inferred from the PDF. The **north wall of the 462/472 block** is on the building's outer edge, and so is the **east wall of 478**. Every other perimeter edge borders offices (473–477), the corridor (CORR1) or the pantry, so it is interior.
-- **Mural:** the **north wall of 462/472** has no windows. It carries a mural of Roy Rosenzweig (from the photo at https://rrchnm.org/img/founder.jpg): a blocky multicolour portrait about 2.4 m tall, its bottom at 0.25 m, toward the east end of the wall (right edge about 0.3 m from the corner). It is a textured quad on the wall's inner face and hides with the wall in the cutaway. The east wall of 478 gets a couple of plain windows (inferred).
+- **Exterior walls:** these are inferred from the PDF. The **north back wall** (one straight wall across the 462/472 block and the east band) is on the building's outer edge, and so is the **east wall of 478**. Every other perimeter edge borders offices (473–477), the corridor (CORR1) or the pantry, so it is interior.
+- **Mural:** the **north back wall** has no windows. It carries a mural of Roy Rosenzweig (from the photo at https://rrchnm.org/img/founder.jpg): a blocky multicolour portrait about 2.4 m tall, its bottom at 0.25 m, above the 462/472 block (right edge about 0.3 m west of x = 13.1, where the block meets the band). It is a textured quad on the wall's inner face and hides with the wall in the cutaway. The east wall of 478 gets a couple of plain windows (inferred).
 - **Finishes:** off-white painted drywall.
 - **Doors:** 1–3 light-oak doors with a narrow vision slot, on walls facing the corridor or pantry. They are decorative and always closed, so animals bounce off them.
 - **Floor:** tan/gold broadloom carpet.
@@ -93,7 +94,8 @@ The starting camera looks north from the south, so "closest to us" is the south 
 - **Meeting:** a 12 × 4 ft beige conference table with eight task chairs sits behind the sofas, in the east band.
 - **Kitchenette and filing:** the kitchenette is on the alcove's south wall, west of the TV. The black cabinets (filing cabinets) line up next to it, further west.
 - **Workspace:** the desks are on the left (west of the alcove). Most sit against the near (south) wall and the west walls, each with a task chair, plus two back-to-back islands of desks in the middle.
-- **The rest:** the owl lamp credenza stays against the north wall in front of the mural. Group tables, bookcases, the AV cart, stacking chairs, plants and the whiteboard fill the remaining spots.
+- **The rest:** the owl lamp credenza stays against the north wall in front of the mural. Bookcases, the AV cart, stacking chairs, plants and the whiteboard fill the remaining spots.
+- **The back wall:** the user: "There are no desks against the back wall." No desks or group tables stand against it; the two bookcases do.
 
 Exact positions are the builder's call within that description. Keep the furniture layout in one editable scene, separate from the room geometry.
 
@@ -217,7 +219,7 @@ A gentle glow post-effect may be used so fireflies read as glowing.
 
 ## 11. Calls made by the designer (not confirmed by the user)
 
-- **Exterior walls:** the north wall of 462/472 (mural, no windows) and the east wall of 478. Inferred from the PDF.
+- **Exterior walls:** the north back wall (mural, no windows) and the east wall of 478. Inferred from the PDF.
 - **Columns:** 2–4, placed at the plan's internal line junctions.
 - **Doors:** decorative, always closed.
 - **Hop rule:** relaunch at species hop speed on every landing, plus a small random heading turn.

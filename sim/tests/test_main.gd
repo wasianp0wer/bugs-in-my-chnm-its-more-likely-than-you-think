@@ -36,8 +36,8 @@ func test_add_clear_spam() -> void:
 func test_cutaway_initial_view_stubs_south_walls() -> void:
 	var m := _main()
 	await wait_process_frames(2)
-	assert_true(_stubbed(m, 8), "south wall faces the default camera")
-	assert_false(_stubbed(m, 2), "north window wall stays full")
+	assert_true(_stubbed(m, 6), "south wall faces the default camera")
+	assert_false(_stubbed(m, 2), "north mural wall stays full")
 
 func test_cutaway_follows_camera() -> void:
 	var m := _main()
@@ -45,7 +45,7 @@ func test_cutaway_follows_camera() -> void:
 	var c := RoomGeometry.bounds().get_center()
 	m.camera.set_view(Vector3(c.x, 0.5, c.y), PI, deg_to_rad(50.0), 30.0)  # north of the room
 	assert_true(_stubbed(m, 2), "north wall stubbed")
-	assert_false(_stubbed(m, 8), "south wall back to full height")
+	assert_false(_stubbed(m, 6), "south wall back to full height")
 
 func test_credits_loads() -> void:
 	var m := _main()

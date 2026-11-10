@@ -26,6 +26,14 @@ The outline covers rooms 461, 462, 472, 479, 470 and 478. It is L/T-shaped, with
 - **Floor area:** about 290 m² (about 3,150 sq ft).
 - **Ceiling height:** assumed to be 2.9 m (9.5 ft), a typical value for an office building of this period. It is not measured.
 
+## Back wall flattened (the user's correction, Task 15)
+
+The plan shows the east band's north wall about 3.9 m south of the 462/472 block's. The user says the real back wall is flat, with no alcove, so the sim pushes the band north to meet it. The whole north wall, from x = 2.9 to x = 31.5, is now one straight wall at z = 0. The table above is the PDF estimate; the sim uses:
+
+- **East band rect (x, z, w, d):** (13.1, 0.0, 18.4, 10.7), was (13.1, 3.9, 18.4, 6.8).
+- **Outline:** (0, 5.9), (2.9, 5.9), (2.9, 0), (31.5, 0), (31.5, 14.8), (20.3, 14.8), (20.3, 10.7), (0, 10.7).
+- **Floor area:** 365.9 m² (was 294.1 m²). The bounding box is unchanged at 31.5 × 14.8 m.
+
 ## Sources
 
 - The floor plan PDF in this directory.

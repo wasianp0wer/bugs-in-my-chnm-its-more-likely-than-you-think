@@ -46,7 +46,7 @@ func test_counts_within_spec_ranges() -> void:
 	var ranges := {
 		"sofa": [2, 3], "tub_chair": [1, 2], "sling_chair": [1, 2], "coffee_table": [1, 1],
 		"credenza": [1, 1], "owl_lamp": [1, 1], "wardrobe": [3, 5], "tv_stand": [1, 1],
-		"whiteboard": [1, 2], "av_cart": [1, 1], "desk": [6, 12], "group_table": [2, 4],
+		"whiteboard": [1, 2], "av_cart": [1, 1], "desk": [6, 12], "group_table": [0, 4],
 		"task_chair": [10, 99], "stack_chair": [3, 4], "bookcase": [1, 3], "plant": [1, 2],
 		"kitchenette": [1, 1], "conference_table": [1, 1]}
 	var counts := {}
@@ -134,11 +134,13 @@ func test_box_heights() -> void:
 		assert_true(b.end.y <= 2.2 + EPS, "height %s" % b)
 		assert_true(b.position.y >= -EPS, "above floor %s" % b)
 
-## Nothing taller than 1.0 m stands against the mural's span (north wall, z < 0.6), except
-## the credenza and its owl lamp (the lamp reaches 1.5 m; accepted, see the task 14 report).
+## Nothing taller than 1.0 m stands against the mural's span (north wall west of
+## RoomData.MURAL_EAST_X, z < 0.6), except the credenza and its owl lamp (the lamp reaches
+## 1.5 m; accepted, see the task 14 report).
 func test_mural_span_clear() -> void:
 	var w: Dictionary = RoomGeometry.walls()[RoomData.MURAL_EDGE]
-	var strip := Rect2(minf(w.a.x, w.b.x), w.a.y, absf(w.b.x - w.a.x), 0.6)
+	var west := minf(w.a.x, w.b.x)
+	var strip := Rect2(west, w.a.y, RoomData.MURAL_EAST_X - west, 0.6)
 	var too_tall: Array[String] = []
 	for item in FurnitureFactory.load_layout():
 		if item.type in ["credenza", "owl_lamp"]:
@@ -264,8 +266,8 @@ func _gap(a: Rect2, b: Rect2) -> float:
 
 func _against_near_or_left_wall(desk: Dictionary) -> bool:
 	var r := _item_footprint(desk)
-	var near_south := absf(r.end.y - 10.7) <= WALL_SNAP and r.end.x <= 20.3 + EPS     # edge 8
-	var near_notch := absf(r.position.x - 0.0) <= WALL_SNAP and r.position.y >= 5.9 - EPS  # edge 9
+	var near_south := absf(r.end.y - 10.7) <= WALL_SNAP and r.end.x <= 20.3 + EPS     # edge 6
+	var near_notch := absf(r.position.x - 0.0) <= WALL_SNAP and r.position.y >= 5.9 - EPS  # edge 7
 	var near_west := absf(r.position.x - 2.9) <= WALL_SNAP and r.end.y <= 5.9 + EPS      # edge 1
 	return near_south or near_notch or near_west
 
@@ -358,3 +360,28 @@ func test_conference_table_buildable() -> void:
 	for b in FurnitureFactory.collision_boxes(item):
 		top = maxf(top, b.end.y)
 	assert_almost_eq(top, 0.75, 0.001)
+
+# --- the user's flat back wall (Task 15) -------------------------------------
+
+const BACK_WALL_CLEAR := 0.5
+
+## "There are no desks against the back wall": no desk, group table or task chair within
+## 0.5 m of z = 0, and the group tables that stood along it (with their chairs) are gone.
+func test_no_desks_against_back_wall() -> void:
+	for item in FurnitureFactory.load_layout():
+		if item.type in ["desk", "group_table", "task_chair"]:
+			assert_gt(_item_footprint(item).position.y, BACK_WALL_CLEAR - EPS, "%s at %s against the back wall" % [item.type, item.pos])
+	assert_eq(_of_type("group_table").size(), 0, "group tables removed")
+
+func _gap_to_segment(r: Rect2, a: Vector2, b: Vector2) -> float:
+	# Axis-aligned segment as a zero-thickness rect.
+	return _gap(r, Rect2(a, Vector2.ZERO).expand(b))
+
+## Bookcases stand against a wall, not mid-room.
+func test_bookcases_against_a_wall() -> void:
+	for bc in _of_type("bookcase"):
+		var r := _item_footprint(bc)
+		var best := INF
+		for w in RoomGeometry.walls():
+			best = minf(best, _gap_to_segment(r, w.a, w.b))
+		assert_lte(best, WALL_SNAP, "bookcase at %s against a wall" % [bc.pos])

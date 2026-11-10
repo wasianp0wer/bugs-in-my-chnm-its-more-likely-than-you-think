@@ -1,11 +1,6 @@
 extends GutTest
 
-const RECTS: Array[Rect2] = [
-	Rect2(0.0, 5.9, 2.9, 4.8),
-	Rect2(2.9, 0.0, 10.2, 10.7),
-	Rect2(13.1, 3.9, 18.4, 6.8),
-	Rect2(20.3, 10.7, 11.2, 4.1),
-]
+const RECTS: Array[Rect2] = RoomData.RECTS
 
 func _world() -> CollisionWorld:
 	var boxes: Array[AABB] = [AABB(Vector3(15, 0, 5), Vector3(1.5, 0.75, 0.75))]
