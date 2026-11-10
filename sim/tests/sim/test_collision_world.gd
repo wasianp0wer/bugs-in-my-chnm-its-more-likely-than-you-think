@@ -45,3 +45,22 @@ func test_shader_params_padded_and_packed() -> void:
 	assert_eq(p["box_max"][0], Vector3(16.5, 0.75, 5.75))
 	assert_eq(p["room_rects"][7], Vector4.ZERO)
 	assert_eq(p["box_min"][127], Vector3.ZERO)
+
+## Over the shader's limits (MAX_RECTS / MAX_BOXES): push_error, then clamp, even in
+## release builds where assert() is stripped.
+func test_too_many_rects_and_boxes_error_and_clamp() -> void:
+	var rects: Array[Rect2] = []
+	for i in CollisionWorld.MAX_RECTS + 1:
+		rects.append(Rect2(i, 0, 1, 1))
+	var boxes: Array[AABB] = []
+	for i in CollisionWorld.MAX_BOXES + 2:
+		boxes.append(AABB(Vector3(i, 0, 0), Vector3.ONE))
+	var w := CollisionWorld.new(rects, boxes, 2.9)
+	assert_push_error_count(2, "one error each for rects and boxes")
+	assert_eq(w.rects.size(), CollisionWorld.MAX_RECTS)
+	assert_eq(w.boxes.size(), CollisionWorld.MAX_BOXES)
+	assert_eq(w.boxes[CollisionWorld.MAX_BOXES - 1], boxes[CollisionWorld.MAX_BOXES - 1], "keeps the first ones")
+	var p := w.to_shader_params()
+	assert_eq(p["box_count"], CollisionWorld.MAX_BOXES)
+	assert_eq(p["room_rect_count"], CollisionWorld.MAX_RECTS)
+	assert_eq(boxes.size(), CollisionWorld.MAX_BOXES + 2, "caller's array untouched")

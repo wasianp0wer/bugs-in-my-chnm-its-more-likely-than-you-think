@@ -10,10 +10,15 @@ var boxes: Array[AABB]
 var ceiling: float
 
 func _init(p_rects: Array[Rect2], p_boxes: Array[AABB], p_ceiling: float) -> void:
-	assert(p_rects.size() <= MAX_RECTS, "too many room rects")
-	assert(p_boxes.size() <= MAX_BOXES, "too many boxes")
+	# The shader's uniform arrays hold MAX_RECTS / MAX_BOXES; extra ones are dropped.
 	rects = p_rects
+	if rects.size() > MAX_RECTS:
+		push_error("CollisionWorld: %d room rects, keeping the first %d" % [rects.size(), MAX_RECTS])
+		rects = rects.slice(0, MAX_RECTS)
 	boxes = p_boxes
+	if boxes.size() > MAX_BOXES:
+		push_error("CollisionWorld: %d boxes, keeping the first %d" % [boxes.size(), MAX_BOXES])
+		boxes = boxes.slice(0, MAX_BOXES)
 	ceiling = p_ceiling
 
 ## Boundaries count as inside.
