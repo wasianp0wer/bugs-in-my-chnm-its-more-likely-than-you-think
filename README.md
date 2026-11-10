@@ -42,7 +42,7 @@ godot --headless --path sim --export-release "macOS" ../build/mac/CHNM-Critter-S
 godot --headless --path sim --export-release "Windows Desktop" ../build/win/CHNM-Critter-Sim.exe
 ```
 
-The presets live in `sim/export_presets.cfg`. They leave out `tools/`, `tests/`, `addons/gut/` and `assets/animals/src/`.
+The presets live in `sim/export_presets.cfg`. They leave out `tools/`, `tests/`, `addons/gut/` and the source GLBs in `assets/animals/src/` (the textures there are shipped, because the baked meshes use them).
 
 ## Tests
 
