@@ -8,7 +8,7 @@ const SHADER: Shader = preload("res://shaders/critter_process.gdshader")
 const LIFETIME := 1.0e6
 const VISIBILITY_MARGIN := 1.0
 const EMISSION_COLOR := Color("#d8ff6a")
-const EMISSION_ENERGY := 4.0
+const EMISSION_ENERGY := 10.0
 ## Batches this large draw a decimated mesh and cast no shadows: at 50k animals the
 ## baked meshes (~0.5-5k triangles each) and their shadow passes dominate frame time.
 const CROWD_MIN := 1000

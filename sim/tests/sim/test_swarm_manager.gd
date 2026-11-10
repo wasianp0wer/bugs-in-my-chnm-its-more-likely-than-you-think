@@ -32,6 +32,17 @@ func test_shader_compiles() -> void:
 	for want in UNIFORMS:
 		assert_has(names, want, "uniform %s" % want)
 
+## start() mirrors RoomGeometry.random_spawn_xz: reject a spawn only when the 3D point
+## (x, SPAWN_Y, z) is inside a box, not when it is merely above a box footprint.
+func test_shader_spawn_mirrors_room_geometry() -> void:
+	var code := (load(SHADER_PATH) as Shader).code
+	var m := RegEx.create_from_string("const float SPAWN_Y = ([0-9.]+);").search(code)
+	assert_not_null(m)
+	if m:
+		assert_almost_eq(float(m.get_string(1)), RoomGeometry.SPAWN_Y, 1e-6)
+	assert_false(code.contains("in_box_footprint"), "no footprint rejection")
+	assert_true(code.contains("in_any_box(vec3(xz.x, SPAWN_Y, xz.y))"), "3D point rejection")
+
 func test_rect_cdf_is_normalised_area_prefix_sums() -> void:
 	var cdf := SwarmBatch.rect_cdf(_world().to_shader_params())
 	assert_eq(cdf.size(), 8)
@@ -100,8 +111,8 @@ func test_emissive_species_gets_duplicated_emissive_materials() -> void:
 		assert_ne(m, orig, "surface %d material duplicated" % i)
 		assert_true(m.emission_enabled)
 		assert_eq(m.emission, Color("#d8ff6a"))
-		assert_eq(m.emission_energy_multiplier, 4.0)
-		assert_ne(orig.emission_energy_multiplier, 4.0, "shared material untouched")
+		assert_eq(m.emission_energy_multiplier, 10.0)
+		assert_ne(orig.emission_energy_multiplier, 10.0, "shared material untouched")
 		assert_ne(orig.emission, Color("#d8ff6a"), "shared material untouched")
 
 func test_non_emissive_species_shares_mesh() -> void:
@@ -156,7 +167,7 @@ func test_emissive_crowd_is_decimated_and_glows() -> void:
 	for i in b.draw_pass_1.get_surface_count():
 		var m := b.draw_pass_1.surface_get_material(i) as BaseMaterial3D
 		assert_eq(m.emission, Color("#d8ff6a"))
-		assert_eq(m.emission_energy_multiplier, 4.0)
+		assert_eq(m.emission_energy_multiplier, 10.0)
 		assert_ne(m, shared.surface_get_material(i))
 
 func test_add_creates_batches() -> void:

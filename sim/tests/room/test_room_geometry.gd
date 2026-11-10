@@ -70,7 +70,6 @@ func test_spawn_covers_all_rects() -> void:
 	for i in n:
 		var p := RoomGeometry.random_spawn_xz(rng, obs)
 		assert_true(RoomGeometry.contains_xz(p))
-		assert_false(Rect2(4, 1, 2, 2).has_point(p))
 		for r in RoomData.RECTS.size():
 			if RoomData.RECTS[r].has_point(p):
 				counts[r] += 1
@@ -78,6 +77,29 @@ func test_spawn_covers_all_rects() -> void:
 	for r in RoomData.RECTS.size():
 		var frac := RoomData.RECTS[r].get_area() / RoomGeometry.area()
 		assert_almost_eq(float(counts[r]) / n, frac, 0.03, "rect %d" % r)
+
+## Spawns rain from SPAWN_Y: allowed above a low box (desk), never inside a tall one.
+func test_spawn_rejects_only_points_inside_boxes() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 777
+	var desk := AABB(Vector3(4, 0, 1), Vector3(2, 0.75, 2))
+	var column := AABB(Vector3(8, 0, 4), Vector3(2, RoomData.CEILING, 2))
+	var obs: Array[AABB] = [desk, column]
+	var above_desk := 0
+	var n := 20000
+	for i in n:
+		var p := RoomGeometry.random_spawn_xz(rng, obs)
+		var q := Vector3(p.x, RoomGeometry.SPAWN_Y, p.y)
+		for b in obs:
+			assert_false(_in_box(b, q), "spawn %s inside %s" % [q, b])
+		if Rect2(4, 1, 2, 2).has_point(p):
+			above_desk += 1
+	var expect := 4.0 / RoomGeometry.area() * n
+	assert_gt(above_desk, int(expect * 0.5), "spawns above the desk footprint (expect ~%d)" % int(expect))
+
+func _in_box(b: AABB, q: Vector3) -> bool:
+	return q.x >= b.position.x and q.x <= b.end.x and q.y >= b.position.y and q.y <= b.end.y \
+			and q.z >= b.position.z and q.z <= b.end.z
 
 func test_walls_facing_camera() -> void:
 	var f := RoomGeometry.walls_facing_camera(Vector3(15, 10, -20))

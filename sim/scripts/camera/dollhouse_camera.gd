@@ -21,6 +21,11 @@ func _ready() -> void:
 	_apply()
 	_apply.call_deferred()
 
+## Jump to a view (yaw/pitch in radians, distance in metres) and emit `moved`.
+func set_view(target: Vector3, yaw: float, pitch: float, distance: float) -> void:
+	_math.set_view(target, yaw, pitch, distance)
+	_apply()
+
 static func _pick_floor(ray_origin: Vector3, ray_dir: Vector3) -> Variant:
 	if absf(ray_dir.y) < 0.000001:
 		return null
