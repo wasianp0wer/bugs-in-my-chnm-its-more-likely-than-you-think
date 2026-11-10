@@ -51,6 +51,7 @@ const POT := Color(0.42, 0.27, 0.20)
 const LAMINATE := Color(0.84, 0.80, 0.70)
 const COUNTERTOP := Color(0.55, 0.52, 0.48)
 const STEEL := Color(0.70, 0.72, 0.74)
+const BEIGE_LAMINATE := Color("#d9cfb8")
 const BOOKS: Array[Color] = [Color(0.6, 0.15, 0.12), Color(0.15, 0.3, 0.55), Color(0.85, 0.75, 0.4), Color(0.3, 0.45, 0.25)]
 
 static var _materials := {}
@@ -98,6 +99,7 @@ static func build(item: Dictionary) -> Node3D:
 		"bookcase": _bookcase(root, w, d, h)
 		"plant": _plant(root, w, d, h)
 		"kitchenette": _kitchenette(root, w, d, h)
+		"conference_table": _conference_table(root, w, d, h)
 		_:
 			push_error("FurnitureFactory: unknown type %s" % item.type)
 			_box(root, Vector3(w, h, d), Vector3(0, h / 2.0, 0), GREY)
@@ -379,6 +381,16 @@ static func _group_table(p: Node3D, w: float, d: float, h: float) -> void:
 		_box(p, Vector3(0.04, h - 0.06, 0.04), Vector3(x, (h - 0.06) / 2.0, 0), BLACK)
 		_box(p, Vector3(0.05, 0.03, d * 0.9), Vector3(x, 0.015, 0), BLACK)
 	_box(p, Vector3(w - 0.2, 0.03, 0.03), Vector3(0, h * 0.4, 0), BLACK)
+
+static func _conference_table(p: Node3D, w: float, d: float, h: float) -> void:
+	# 12 x 4 ft meeting table: beige laminate top with a dark edge on two panel bases.
+	_box(p, Vector3(w, 0.035, d), Vector3(0, h - 0.0175, 0), BEIGE_LAMINATE)
+	_box(p, Vector3(w + 0.01, 0.02, d + 0.01), Vector3(0, h - 0.045, 0), CHARCOAL)
+	for sx in [-1.0, 1.0]:
+		var x: float = sx * w * 0.3
+		_box(p, Vector3(0.06, h - 0.055, d * 0.55), Vector3(x, (h - 0.055) / 2.0, 0), CHARCOAL)
+		_box(p, Vector3(0.1, 0.03, d * 0.75), Vector3(x, 0.015, 0), CHARCOAL)
+	_box(p, Vector3(w * 0.6, 0.08, 0.04), Vector3(0, h * 0.5, 0), CHARCOAL)
 
 static func _task_chair(p: Node3D, w: float, d: float, h: float) -> void:
 	# Aeron-style: five-star base on casters, gas lift, mesh seat and back, arms.

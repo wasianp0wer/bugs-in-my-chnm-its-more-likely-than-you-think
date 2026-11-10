@@ -2,9 +2,9 @@ extends GutTest
 
 const TYPES := ["sofa", "tub_chair", "sling_chair", "coffee_table", "credenza", "owl_lamp",
 	"wardrobe", "tv_stand", "whiteboard", "av_cart", "desk", "group_table", "task_chair",
-	"stack_chair", "bookcase", "plant", "kitchenette"]
+	"stack_chair", "bookcase", "plant", "kitchenette", "conference_table"]
 const CHAIRS := ["task_chair", "stack_chair"]
-const TABLES := ["desk", "group_table"]
+const TABLES := ["desk", "group_table", "conference_table"]
 const EPS := 0.001
 
 func _footprint(b: AABB) -> Rect2:
@@ -48,7 +48,7 @@ func test_counts_within_spec_ranges() -> void:
 		"credenza": [1, 1], "owl_lamp": [1, 1], "wardrobe": [3, 5], "tv_stand": [1, 1],
 		"whiteboard": [1, 2], "av_cart": [1, 1], "desk": [6, 12], "group_table": [2, 4],
 		"task_chair": [10, 99], "stack_chair": [3, 4], "bookcase": [1, 3], "plant": [1, 2],
-		"kitchenette": [1, 1]}
+		"kitchenette": [1, 1], "conference_table": [1, 1]}
 	var counts := {}
 	for item in FurnitureFactory.load_layout():
 		assert_true(item.type in TYPES, "known type %s" % item.type)
@@ -137,12 +137,14 @@ func test_box_heights() -> void:
 func test_window_sill_clear() -> void:
 	var w: Dictionary = RoomGeometry.walls()[RoomData.WINDOW_BANK_EDGE]
 	var sill := Rect2(minf(w.a.x, w.b.x), w.a.y, absf(w.b.x - w.a.x), 0.6)
+	var too_tall: Array[String] = []
 	for item in FurnitureFactory.load_layout():
 		if item.type in ["credenza", "owl_lamp"]:
 			continue
 		for b in FurnitureFactory.collision_boxes(item):
-			if _overlap(_footprint(b), sill):
-				assert_true(b.end.y <= 0.75 + EPS, "%s at %s too tall under window" % [item.type, item.pos])
+			if _overlap(_footprint(b), sill) and b.end.y > 0.75 + EPS:
+				too_tall.append("%s at %s" % [item.type, item.pos])
+	assert_eq(too_tall, [] as Array[String], "too tall under the window")
 
 func test_spawnable_area_remains() -> void:
 	var used := 0.0
@@ -227,3 +229,130 @@ func test_box_budget_for_shader() -> void:
 	var n := FurnitureFactory.all_boxes().size() + RoomGeometry.column_boxes().size()
 	assert_eq(RoomGeometry.column_boxes().size(), 4)
 	assert_true(n <= 128, "total boxes %d" % n)
+
+# --- the user's description of the real room (Task 13) -----------------------
+
+const ALCOVE := Rect2(20.3, 10.7, 11.2, 4.1)
+const NEAR_WALL_Z := 14.8
+const WALL_SNAP := 0.15
+
+func _of_type(t: String) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for item in FurnitureFactory.load_layout():
+		if item.type == t:
+			out.append(item)
+	return out
+
+func _one(t: String) -> Dictionary:
+	var items := _of_type(t)
+	assert_eq(items.size(), 1, "exactly one %s" % t)
+	return items[0] if items.size() > 0 else {"type": t, "pos": [-99.0, -99.0], "rot": 0, "size": [1.0, 1.0, 1.0]}
+
+func _item_footprint(item: Dictionary) -> Rect2:
+	var rects := _item_rects(item)
+	var r: Rect2 = rects[0]
+	for x in rects:
+		r = r.merge(x)
+	return r
+
+func _gap(a: Rect2, b: Rect2) -> float:
+	var dx := maxf(0.0, maxf(a.position.x - b.end.x, b.position.x - a.end.x))
+	var dz := maxf(0.0, maxf(a.position.y - b.end.y, b.position.y - a.end.y))
+	return sqrt(dx * dx + dz * dz)
+
+func _against_near_or_left_wall(desk: Dictionary) -> bool:
+	var r := _item_footprint(desk)
+	var near_south := absf(r.end.y - 10.7) <= WALL_SNAP and r.end.x <= 20.3 + EPS     # edge 8
+	var near_notch := absf(r.position.x - 0.0) <= WALL_SNAP and r.position.y >= 5.9 - EPS  # edge 9
+	var near_west := absf(r.position.x - 2.9) <= WALL_SNAP and r.end.y <= 5.9 + EPS      # edge 1
+	return near_south or near_notch or near_west
+
+func test_tv_in_alcove_against_near_wall() -> void:
+	var tv := _one("tv_stand")
+	assert_true(ALCOVE.has_point(Vector2(tv.pos[0], tv.pos[1])), "tv at %s in alcove" % [tv.pos])
+	assert_almost_eq(_item_footprint(tv).end.y, NEAR_WALL_Z, 0.1, "tv back on the near wall")
+
+func test_couches_in_front_of_tv() -> void:
+	var tv := _one("tv_stand")
+	var sofas := _of_type("sofa")
+	assert_true(sofas.size() >= 2, "sofas")
+	var zone := Rect2(ALCOVE.position.x - 1.0, ALCOVE.position.y - 1.5, ALCOVE.size.x + 2.0, ALCOVE.size.y + 1.5)
+	for s in sofas:
+		assert_lt(float(s.pos[1]), float(tv.pos[1]), "sofa at %s north of the tv" % [s.pos])
+		assert_true(zone.encloses(_item_footprint(s)), "sofa at %s in or just north of the alcove" % [s.pos])
+
+func test_conference_table_behind_couches() -> void:
+	var table := _one("conference_table")
+	for s in _of_type("sofa"):
+		assert_lt(float(table.pos[1]), float(s.pos[1]), "conference table behind sofa at %s" % [s.pos])
+
+func test_kitchenette_left_of_tv() -> void:
+	var k := _one("kitchenette")
+	var tv := _one("tv_stand")
+	assert_lt(float(k.pos[0]), float(tv.pos[0]), "kitchenette left of the tv")
+	assert_true(ALCOVE.grow(EPS).encloses(_item_footprint(k)), "kitchenette in the alcove")
+
+func test_filing_cabinets_next_to_kitchenette() -> void:
+	var chain: Array[Rect2] = [_item_footprint(_one("kitchenette"))]
+	var pending := _of_type("wardrobe")
+	assert_true(pending.size() >= 3, "at least 3 filing cabinets")
+	var grew := true
+	while grew:
+		grew = false
+		for w in pending.duplicate():
+			var r := _item_footprint(w)
+			for c in chain:
+				if _gap(r, c) <= 1.0:
+					chain.append(r)
+					pending.erase(w)
+					grew = true
+					break
+	assert_eq(pending.size(), 0, "cabinets not chained to the kitchenette: %s" % [pending])
+
+func test_desks_on_left() -> void:
+	for d in _of_type("desk"):
+		assert_lt(float(d.pos[0]), 20.3, "desk at %s on the left" % [d.pos])
+
+func test_most_desks_against_near_or_left_walls() -> void:
+	var desks := _of_type("desk")
+	var n := 0
+	for d in desks:
+		if _against_near_or_left_wall(d):
+			n += 1
+	assert_true(n * 2 >= desks.size(), "%d of %d desks against the walls" % [n, desks.size()])
+
+func test_two_desk_islands() -> void:
+	var free: Array[Rect2] = []
+	for d in _of_type("desk"):
+		if not _against_near_or_left_wall(d):
+			free.append(_item_footprint(d))
+	var seen := {}
+	var sizes: Array[int] = []
+	for i in free.size():
+		if seen.has(i):
+			continue
+		var stack: Array[int] = [i]
+		seen[i] = true
+		var size := 0
+		while not stack.is_empty():
+			var k: int = stack.pop_back()
+			size += 1
+			for j in free.size():
+				if not seen.has(j) and _gap(free[k], free[j]) <= 0.1:
+					seen[j] = true
+					stack.append(j)
+		sizes.append(size)
+	assert_eq(sizes.size(), 2, "desk islands %s" % [sizes])
+	for s in sizes:
+		assert_true(s >= 2, "island of %d desks" % s)
+
+func test_conference_table_buildable() -> void:
+	var item := {"type": "conference_table", "pos": [27.0, 8.0], "rot": 0, "size": [3.6, 1.2, 0.75]}
+	var node := FurnitureFactory.build(item)
+	assert_eq(String(node.name), "ConferenceTable")
+	assert_true(node.find_children("*", "MeshInstance3D", true, false).size() >= 1, "meshes")
+	node.free()
+	var top := 0.0
+	for b in FurnitureFactory.collision_boxes(item):
+		top = maxf(top, b.end.y)
+	assert_almost_eq(top, 0.75, 0.001)
