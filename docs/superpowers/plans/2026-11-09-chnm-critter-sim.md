@@ -423,6 +423,8 @@ Commit with the message "feat(furniture): CHNM main-room furniture".
 
 ### Task 9: Room visuals and cutaway
 
+> Note: the north window bank built in this task was later replaced by the Rosenzweig mural (Task 14), and the furniture layout was rearranged per the user (Task 13).
+
 **Files:** Create `sim/scripts/room/room_builder.gd`, `sim/scripts/room/cutaway.gd` and `sim/tests/room/test_room_builder.gd`.
 
 **Interfaces:**
