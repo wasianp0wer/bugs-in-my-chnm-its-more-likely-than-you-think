@@ -1,0 +1,455 @@
+[
+ {
+  "id": "ant",
+  "name": "Ant",
+  "source": "../models/ant/ant_poly_by_google_polypizza_90PJjBye5ZC.glb",
+  "body_length_m": 0.006,
+  "motion": "hopper",
+  "speed_mps": 0.03,
+  "hop_height_m": 0.005,
+  "emissive": false,
+  "credit": {
+   "title": "Ant",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/90PJjBye5ZC",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "bat",
+  "name": "Bat",
+  "source": "../models/bat/bat_quaternius_polypizza_hNO9XvjlKa.glb",
+  "body_length_m": 0.15,
+  "motion": "flyer",
+  "speed_mps": 4.0,
+  "emissive": false,
+  "credit": {
+   "title": "Bat",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/hNO9XvjlKa",
+   "license": "CC0 1.0"
+  }
+ },
+ {
+  "id": "bee",
+  "name": "Bee",
+  "source": "../models/bee/bee_quaternius_polypizza_HvfIku26CK.glb",
+  "body_length_m": 0.015,
+  "motion": "flyer",
+  "speed_mps": 2.0,
+  "emissive": false,
+  "credit": {
+   "title": "Bee",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/HvfIku26CK",
+   "license": "CC0 1.0"
+  }
+ },
+ {
+  "id": "beetle",
+  "name": "Beetle",
+  "source": "../models/beetle/beetle_poly_by_google_polypizza_4yufxgZ1QQ2.glb",
+  "body_length_m": 0.02,
+  "motion": "hopper",
+  "speed_mps": 0.1,
+  "hop_height_m": 0.01,
+  "emissive": false,
+  "credit": {
+   "title": "Beetle",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/4yufxgZ1QQ2",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "butterfly",
+  "name": "Butterfly",
+  "source": "../models/butterfly/butterfly_poly_by_google_polypizza_e9NAQQrCbLu.glb",
+  "body_length_m": 0.05,
+  "motion": "flyer",
+  "speed_mps": 1.5,
+  "emissive": false,
+  "credit": {
+   "title": "Butterfly",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/e9NAQQrCbLu",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "cat",
+  "name": "Cat",
+  "source": "../models/cat/cat_poly_by_google_polypizza_6dM1J6f6pm9.glb",
+  "body_length_m": 0.46,
+  "motion": "hopper",
+  "speed_mps": 2.0,
+  "hop_height_m": 0.4,
+  "emissive": false,
+  "credit": {
+   "title": "Cat",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/6dM1J6f6pm9",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "caterpillar",
+  "name": "Caterpillar",
+  "source": "../models/caterpillar/caterpillar_poly_by_google_polypizza_64T47O5VHAB.glb",
+  "body_length_m": 0.04,
+  "motion": "hopper",
+  "speed_mps": 0.01,
+  "hop_height_m": 0.002,
+  "emissive": false,
+  "credit": {
+   "title": "Caterpillar",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/64T47O5VHAB",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "centipede",
+  "name": "Centipede",
+  "source": "../models/centipede/centipede_poly_by_google_polypizza_8C36B7L_2hR.glb",
+  "body_length_m": 0.05,
+  "motion": "hopper",
+  "speed_mps": 0.3,
+  "hop_height_m": 0.005,
+  "emissive": false,
+  "credit": {
+   "title": "Centipede",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/8C36B7L_2hR",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "cockroach",
+  "name": "Cockroach",
+  "source": "../models/cockroach/cockroach_poly_by_google_polypizza_eSCFQN_47V4.glb",
+  "body_length_m": 0.03,
+  "motion": "hopper",
+  "speed_mps": 0.8,
+  "hop_height_m": 0.02,
+  "emissive": false,
+  "credit": {
+   "title": "Cockroach",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/eSCFQN_47V4",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "crow",
+  "name": "Crow",
+  "source": "../models/crow/crow_poly_by_google_polypizza_1MIvWQ5Q3R9.glb",
+  "body_length_m": 0.45,
+  "motion": "flyer",
+  "speed_mps": 8.0,
+  "emissive": false,
+  "credit": {
+   "title": "Crow",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/1MIvWQ5Q3R9",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "deer",
+  "name": "Deer",
+  "source": "../models/deer/deer_poly_by_google_polypizza_fUo4AIcd8XR.glb",
+  "body_length_m": 1.8,
+  "motion": "hopper",
+  "speed_mps": 3.0,
+  "hop_height_m": 1.2,
+  "emissive": false,
+  "credit": {
+   "title": "Deer",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/fUo4AIcd8XR",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "dog",
+  "name": "Dog",
+  "source": "../models/dog/dog_poly_by_google_polypizza_eDmSVe4TKwF.glb",
+  "body_length_m": 0.9,
+  "motion": "hopper",
+  "speed_mps": 3.0,
+  "hop_height_m": 0.5,
+  "emissive": false,
+  "credit": {
+   "title": "Dog",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/eDmSVe4TKwF",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "dragonfly",
+  "name": "Dragonfly",
+  "source": "../models/dragonfly/dragonfly_poly_by_google_polypizza_0myA_BOcZrD.glb",
+  "body_length_m": 0.06,
+  "motion": "flyer",
+  "speed_mps": 4.0,
+  "emissive": false,
+  "credit": {
+   "title": "Dragonfly",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/0myA_BOcZrD",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "firefly",
+  "name": "Firefly",
+  "source": "../models/firefly/lowpoly_firefly.glb",
+  "body_length_m": 0.012,
+  "motion": "flyer",
+  "speed_mps": 0.5,
+  "emissive": true,
+  "credit": {
+   "title": "Lowpoly Firefly",
+   "author": "Caledhril",
+   "url": "https://sketchfab.com/3d-models/5effa6605b5545f2915da8b8fff8fa48",
+   "license": "CC-BY 4.0"
+  }
+ },
+ {
+  "id": "flea",
+  "name": "Flea",
+  "source": "../models/flea/flea.glb",
+  "body_length_m": 0.0025,
+  "motion": "hopper",
+  "speed_mps": 0.5,
+  "hop_height_m": 0.2,
+  "emissive": false,
+  "credit": {
+   "title": "Flea (animation test)",
+   "author": "nodoxi",
+   "url": "https://sketchfab.com/3d-models/707ebd86ea2a471681e558ab70fe45a3",
+   "license": "CC-BY 4.0"
+  }
+ },
+ {
+  "id": "frog",
+  "name": "Frog",
+  "source": "../models/frog/frog_quaternius_polypizza_9Z2V8fpazF.glb",
+  "body_length_m": 0.08,
+  "motion": "hopper",
+  "speed_mps": 1.0,
+  "hop_height_m": 0.3,
+  "emissive": false,
+  "credit": {
+   "title": "Frog",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/9Z2V8fpazF",
+   "license": "CC0 1.0"
+  }
+ },
+ {
+  "id": "grasshopper",
+  "name": "Grasshopper",
+  "source": "../models/grasshopper/grasshopper_poly_by_google_polypizza_3VFH5hQvI8R.glb",
+  "body_length_m": 0.04,
+  "motion": "hopper",
+  "speed_mps": 1.0,
+  "hop_height_m": 0.3,
+  "emissive": false,
+  "credit": {
+   "title": "Grasshopper",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/3VFH5hQvI8R",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "hornet",
+  "name": "Hornet",
+  "source": "../models/hornet/hornet_poly_by_google_polypizza_6h7-AWppj5e.glb",
+  "body_length_m": 0.035,
+  "motion": "flyer",
+  "speed_mps": 3.0,
+  "emissive": false,
+  "credit": {
+   "title": "Hornet",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/6h7-AWppj5e",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "housefly",
+  "name": "Housefly",
+  "source": "../models/housefly/fly_jeremy_polypizza_f8kM9xA_5sV.glb",
+  "body_length_m": 0.007,
+  "motion": "flyer",
+  "speed_mps": 2.0,
+  "emissive": false,
+  "credit": {
+   "title": "Fly",
+   "author": "jeremy",
+   "url": "https://poly.pizza/m/f8kM9xA_5sV",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "ladybug",
+  "name": "Ladybug",
+  "source": "../models/ladybug/ladybug_poly_by_google_polypizza_0k_YwE0g_C9.glb",
+  "body_length_m": 0.007,
+  "motion": "hopper",
+  "speed_mps": 0.05,
+  "hop_height_m": 0.01,
+  "emissive": false,
+  "credit": {
+   "title": "Ladybug",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/0k_YwE0g_C9",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "moth",
+  "name": "Moth",
+  "source": "../models/moth/lil_moth_lee_mason_polypizza_8ojwMQpu6DK.glb",
+  "body_length_m": 0.03,
+  "motion": "flyer",
+  "speed_mps": 1.5,
+  "emissive": false,
+  "credit": {
+   "title": "Lil' Moth",
+   "author": "Lee Mason",
+   "url": "https://poly.pizza/m/8ojwMQpu6DK",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "mouse",
+  "name": "Mouse",
+  "source": "../models/mouse/mouse_poly_by_google_polypizza_4KKE4D2FV1D.glb",
+  "body_length_m": 0.09,
+  "motion": "hopper",
+  "speed_mps": 1.5,
+  "hop_height_m": 0.1,
+  "emissive": false,
+  "credit": {
+   "title": "Mouse",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/4KKE4D2FV1D",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "pigeon",
+  "name": "Pigeon",
+  "source": "../models/pigeon/pigeon_quaternius_polypizza_9NGlBTpDEr.glb",
+  "body_length_m": 0.32,
+  "motion": "flyer",
+  "speed_mps": 10.0,
+  "emissive": false,
+  "credit": {
+   "title": "Pigeon",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/9NGlBTpDEr",
+   "license": "CC0 1.0"
+  }
+ },
+ {
+  "id": "raccoon",
+  "name": "Raccoon",
+  "source": "../models/raccoon/raccoon_quaternius_polypizza_xMmx6VQP3r.glb",
+  "body_length_m": 0.6,
+  "motion": "hopper",
+  "speed_mps": 2.0,
+  "hop_height_m": 0.3,
+  "emissive": false,
+  "credit": {
+   "title": "Raccoon",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/xMmx6VQP3r",
+   "license": "CC0 1.0"
+  }
+ },
+ {
+  "id": "rat",
+  "name": "Rat",
+  "source": "../models/rat/rat_quaternius_polypizza_iltq5bVNaV.glb",
+  "body_length_m": 0.25,
+  "motion": "hopper",
+  "speed_mps": 2.0,
+  "hop_height_m": 0.15,
+  "emissive": false,
+  "credit": {
+   "title": "Rat",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/iltq5bVNaV",
+   "license": "CC0 1.0"
+  }
+ },
+ {
+  "id": "snake",
+  "name": "Snake",
+  "source": "../models/snake/snake_quaternius_polypizza_x9x0viZs8V.glb",
+  "body_length_m": 1.0,
+  "motion": "hopper",
+  "speed_mps": 1.0,
+  "hop_height_m": 0.05,
+  "emissive": false,
+  "credit": {
+   "title": "Snake",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/x9x0viZs8V",
+   "license": "CC0 1.0"
+  }
+ },
+ {
+  "id": "spider",
+  "name": "Spider",
+  "source": "../models/spider/spider_quaternius_polypizza_yRYJiAJyiM.glb",
+  "body_length_m": 0.02,
+  "motion": "hopper",
+  "speed_mps": 0.3,
+  "hop_height_m": 0.02,
+  "emissive": false,
+  "credit": {
+   "title": "Spider",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/yRYJiAJyiM",
+   "license": "CC0 1.0"
+  }
+ },
+ {
+  "id": "squirrel",
+  "name": "Squirrel",
+  "source": "../models/squirrel/squirrel_poly_by_google_polypizza_caxos24uWC9.glb",
+  "body_length_m": 0.25,
+  "motion": "hopper",
+  "speed_mps": 3.0,
+  "hop_height_m": 0.4,
+  "emissive": false,
+  "credit": {
+   "title": "Squirrel",
+   "author": "Poly by Google",
+   "url": "https://poly.pizza/m/caxos24uWC9",
+   "license": "CC-BY 3.0"
+  }
+ },
+ {
+  "id": "wasp",
+  "name": "Wasp",
+  "source": "../models/wasp/wasp_quaternius_polypizza_3aQgc75sUR.glb",
+  "body_length_m": 0.015,
+  "motion": "flyer",
+  "speed_mps": 2.5,
+  "emissive": false,
+  "credit": {
+   "title": "Wasp",
+   "author": "Quaternius",
+   "url": "https://poly.pizza/m/3aQgc75sUR",
+   "license": "CC0 1.0"
+  }
+ }
+]
