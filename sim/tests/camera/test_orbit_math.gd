@@ -163,3 +163,9 @@ func test_camera_horizontal_clamped_to_bounds_plus_margin() -> void:
 			assert_between(o.x, outer.position.x - 1e-4, outer.end.x + 1e-4, "x at yaw %d" % yaw_deg)
 			assert_between(o.z, outer.position.y - 1e-4, outer.end.y + 1e-4, "z at yaw %d" % yaw_deg)
 	assert_eq(OrbitMath.CAMERA_MARGIN, 20.0)
+
+func test_geometry_constants_come_from_room() -> void:
+	assert_eq(OrbitMath.MAX_TARGET_Y, RoomData.CEILING)
+	var cam := DollhouseCamera.new()
+	assert_eq(cam.room_bounds, RoomGeometry.bounds())
+	cam.free()

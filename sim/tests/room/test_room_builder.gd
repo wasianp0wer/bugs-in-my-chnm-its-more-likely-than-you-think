@@ -89,3 +89,36 @@ func test_cutaway_toggles() -> void:
 func test_no_ceiling_mesh() -> void:
 	for m in _meshes(room):
 		assert_lte(_aabb_of(m).end.y, 2.95, m.name)
+
+func _pane_centres(edge: int) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	for m in _meshes(room.get_node("Wall_%d/Full" % edge)):
+		if String(m.name).begins_with("Pane"):
+			var c := _aabb_of(m).get_center()
+			out.append(Vector2(c.x, c.z))
+	return out
+
+## Window placement is derived from RoomData: plain windows sit at 1/4 and 3/4 of every
+## exterior edge other than the bank; the bank's panes lie within its edge's endpoints.
+func test_windows_derived_from_room_data() -> void:
+	var n := RoomData.OUTLINE.size()
+	for e in RoomData.EXTERIOR_EDGES:
+		var a: Vector2 = RoomData.OUTLINE[e]
+		var b: Vector2 = RoomData.OUTLINE[(e + 1) % n]
+		var centres := _pane_centres(e)
+		if e == RoomData.WINDOW_BANK_EDGE:
+			assert_eq(centres.size(), 2 * RoomBuilder.BANK_PAIRS)
+			for c in centres:
+				var t := (c - a).dot(b - a) / (b - a).length_squared()
+				assert_between(t, 0.0, 1.0, "bank pane %s on edge %d" % [c, e])
+		else:
+			assert_eq(centres.size(), RoomBuilder.PLAIN_WINDOW_FRACTIONS.size(), "edge %d" % e)
+			var ts: Array[float] = []
+			for c in centres:
+				ts.append((c - a).dot(b - a) / (b - a).length_squared())
+			ts.sort()
+			for i in ts.size():
+				assert_almost_eq(ts[i], float(RoomBuilder.PLAIN_WINDOW_FRACTIONS[i]), 0.001, "edge %d pane %d" % [e, i])
+	for e in n:
+		if not e in RoomData.EXTERIOR_EDGES:
+			assert_eq(_pane_centres(e).size(), 0, "interior edge %d has no windows" % e)

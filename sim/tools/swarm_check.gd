@@ -144,7 +144,8 @@ func _check_probes() -> void:
 
 
 func _check_batches() -> void:
-	var room := AABB(Vector3.ZERO, Vector3(31.5, RoomData.CEILING, 14.8)).grow(EPS)
+	var rb := RoomGeometry.bounds()
+	var room := AABB(Vector3(rb.position.x, 0.0, rb.position.y), Vector3(rb.size.x, RoomData.CEILING, rb.size.y)).grow(EPS)
 	for c in _swarms.get_children():
 		var b := c as SwarmBatch
 		var a := RenderingServer.particles_get_current_aabb(b.get_base())

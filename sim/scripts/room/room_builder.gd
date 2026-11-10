@@ -6,6 +6,8 @@ const SILL := 0.75
 const WIN_H := 1.6
 const BANK_PAIRS := 4
 const BANK_PAIR_W := 1.5
+## Plain windows on the non-bank exterior edges, centred at these fractions of the edge.
+const PLAIN_WINDOW_FRACTIONS := [0.25, 0.75]
 const DOOR_W := 1.0
 const DOOR_H := 2.1
 
@@ -119,9 +121,9 @@ static func _build_wall(w: Dictionary) -> Node3D:
 	# stubs/solids sit outside the outline: local z in [0, THICK] is outward.
 	var openings: Array = []
 	if idx == RoomData.WINDOW_BANK_EDGE:
-		openings = _bank_openings(mid, ex2)
-	elif idx == 5:
-		openings = _plain_openings(mid, ex2)
+		openings = _bank_openings(a, b, mid, ex2)
+	elif idx in RoomData.EXTERIOR_EDGES:
+		openings = _plain_openings(a, b, mid, ex2)
 	_solid_with_openings(full, lo, hi, openings, wall_mat)
 	for i in openings.size():
 		_add_pane(full, i, openings[i], idx == RoomData.WINDOW_BANK_EDGE)
@@ -131,29 +133,32 @@ static func _build_wall(w: Dictionary) -> Node3D:
 			_add_door(full, idx, (c - mid).dot(ex2))
 	return node
 
-# Opening: {u0, u1, y0, y1}
-static func _bank_openings(mid: Vector2, ex2: Vector2) -> Array:
+# Opening: {u0, u1, y0, y1}. Openings are laid out along the wall edge a -> b.
+static func _opening(mid: Vector2, ex2: Vector2, p0: Vector2, p1: Vector2, y0: float, y1: float) -> Dictionary:
+	var ua := (p0 - mid).dot(ex2)
+	var ub := (p1 - mid).dot(ex2)
+	return {"u0": minf(ua, ub), "u1": maxf(ua, ub), "y0": y0, "y1": y1}
+
+## BANK_PAIRS evenly spaced pairs of panes along the whole edge a -> b.
+static func _bank_openings(a: Vector2, b: Vector2, mid: Vector2, ex2: Vector2) -> Array:
 	var out: Array = []
-	var x0 := 2.9
-	var x1 := 13.1
-	var pitch := (x1 - x0) / BANK_PAIRS
+	var dir := (b - a).normalized()
+	var pitch := a.distance_to(b) / BANK_PAIRS
 	var pane_w := (BANK_PAIR_W - 0.06) * 0.5
 	for p in BANK_PAIRS:
-		var cx := x0 + pitch * (p + 0.5)
+		var c := pitch * (p + 0.5)
 		for s in 2:
-			var wx0 := cx - BANK_PAIR_W * 0.5 + s * (pane_w + 0.06)
-			var wx1 := wx0 + pane_w
-			var ua := (Vector2(wx0, mid.y) - mid).dot(ex2)
-			var ub := (Vector2(wx1, mid.y) - mid).dot(ex2)
-			out.append({"u0": minf(ua, ub), "u1": maxf(ua, ub), "y0": SILL, "y1": SILL + WIN_H})
+			var w0 := c - BANK_PAIR_W * 0.5 + s * (pane_w + 0.06)
+			out.append(_opening(mid, ex2, a + dir * w0, a + dir * (w0 + pane_w), SILL, SILL + WIN_H))
 	return out
 
-static func _plain_openings(mid: Vector2, ex2: Vector2) -> Array:
+## One 1.5 m window centred at each PLAIN_WINDOW_FRACTIONS of the edge a -> b.
+static func _plain_openings(a: Vector2, b: Vector2, mid: Vector2, ex2: Vector2) -> Array:
 	var out: Array = []
-	for z in [6.6, 12.2]:
-		var ua := (Vector2(mid.x, z - 0.75) - mid).dot(ex2)
-		var ub := (Vector2(mid.x, z + 0.75) - mid).dot(ex2)
-		out.append({"u0": minf(ua, ub), "u1": maxf(ua, ub), "y0": 0.9, "y1": 2.3})
+	var dir := (b - a).normalized()
+	for f in PLAIN_WINDOW_FRACTIONS:
+		var c := a.lerp(b, f)
+		out.append(_opening(mid, ex2, c - dir * 0.75, c + dir * 0.75, 0.9, 2.3))
 	return out
 
 static func _solid_with_openings(parent: Node3D, lo: float, hi: float, openings: Array, mat: Material) -> void:

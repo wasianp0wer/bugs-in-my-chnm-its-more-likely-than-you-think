@@ -4,7 +4,7 @@ extends Camera3D
 
 signal moved(cam_pos: Vector3)
 
-@export var room_bounds: Rect2 = Rect2(0, 0, 31.5, 14.8)
+@export var room_bounds: Rect2 = RoomGeometry.bounds()
 
 ## (ray_origin, ray_dir) -> Vector3 or null. Default: the y = 0 plane.
 var pick_point: Callable = _pick_floor

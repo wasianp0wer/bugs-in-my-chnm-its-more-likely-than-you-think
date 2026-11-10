@@ -10,7 +10,7 @@ const MIN_PITCH := deg_to_rad(20.0)
 const MAX_PITCH := deg_to_rad(89.0)
 const MIN_DISTANCE := 0.03
 const MAX_DISTANCE := 45.0
-const MAX_TARGET_Y := 2.9
+const MAX_TARGET_Y := RoomData.CEILING
 const MIN_CAMERA_Y := 0.05
 ## The camera stays within the room bounds grown by this much horizontally (m).
 const CAMERA_MARGIN := 20.0
