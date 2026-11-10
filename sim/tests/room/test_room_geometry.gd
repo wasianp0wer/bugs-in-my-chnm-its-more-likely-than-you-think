@@ -67,16 +67,6 @@ func test_doors_on_edges() -> void:
 		var hi := maxf(along, along_b)
 		assert_true(d.center - lo >= 0.6 and hi - d.center >= 0.6, "door edge %d" % d.edge)
 
-func test_columns_inside() -> void:
-	var h := RoomData.COLUMN_SIZE / 2.0
-	for c in RoomData.COLUMNS:
-		for dx in [-h, h]:
-			for dz in [-h, h]:
-				assert_true(RoomGeometry.contains_xz(c + Vector2(dx, dz)))
-	var boxes := RoomGeometry.column_boxes()
-	assert_eq(boxes.size(), RoomData.COLUMNS.size())
-	assert_eq(boxes[0].size, Vector3(0.6, 2.9, 0.6))
-
 func test_spawn_covers_all_rects() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 12345
@@ -99,8 +89,8 @@ func test_spawn_rejects_only_points_inside_boxes() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 777
 	var desk := AABB(Vector3(4, 0, 1), Vector3(2, 0.75, 2))
-	var column := AABB(Vector3(8, 0, 4), Vector3(2, RoomData.CEILING, 2))
-	var obs: Array[AABB] = [desk, column]
+	var pillar := AABB(Vector3(8, 0, 4), Vector3(2, RoomData.CEILING, 2))  # synthetic full-height obstacle
+	var obs: Array[AABB] = [desk, pillar]
 	var above_desk := 0
 	var n := 20000
 	for i in n:
@@ -119,16 +109,16 @@ func test_spawn_keeps_clearance() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4242
 	var c := 0.9
-	var column := AABB(Vector3(8, 0, 4), Vector3(0.6, RoomData.CEILING, 0.6))
-	var obs: Array[AABB] = [column]
-	var grown := AABB(column.position - Vector3(c, 0, c), column.size + Vector3(2 * c, 0, 2 * c))
+	var pillar := AABB(Vector3(8, 0, 4), Vector3(0.6, RoomData.CEILING, 0.6))  # synthetic full-height obstacle
+	var obs: Array[AABB] = [pillar]
+	var grown := AABB(pillar.position - Vector3(c, 0, c), pillar.size + Vector3(2 * c, 0, 2 * c))
 	var counts: Array[int] = [0, 0, 0, 0]
 	for i in 5000:
 		var p := RoomGeometry.random_spawn_xz(rng, obs, c)
 		for dx in [-c, c]:
 			for dz in [-c, c]:
 				assert_true(RoomGeometry.contains_xz(p + Vector2(dx, dz)), "corner of %s outside" % p)
-		assert_false(_in_box(grown, Vector3(p.x, RoomGeometry.SPAWN_Y, p.y)), "spawn %s near column" % p)
+		assert_false(_in_box(grown, Vector3(p.x, RoomGeometry.SPAWN_Y, p.y)), "spawn %s near pillar" % p)
 		for r in RoomData.RECTS.size():
 			if RoomData.RECTS[r].has_point(p):
 				counts[r] += 1

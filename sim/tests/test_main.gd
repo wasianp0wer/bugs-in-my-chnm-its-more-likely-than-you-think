@@ -60,14 +60,21 @@ func test_hud_lists_species() -> void:
 	var opt := m.hud.get_node("%SpeciesOption") as OptionButton
 	assert_eq(opt.item_count, SpeciesDB.load_all().size())
 
-func test_world_has_columns_and_furniture() -> void:
+func test_world_has_furniture_boxes() -> void:
 	var m := _main()
-	var n := RoomGeometry.column_boxes().size() + FurnitureFactory.all_boxes().size()
-	assert_eq(m.world.boxes.size(), n)
+	assert_eq(m.world.boxes.size(), FurnitureFactory.all_boxes().size())
 	assert_eq(m.world.rects.size(), RoomData.RECTS.size())
 	assert_eq(m.world.ceiling, RoomData.CEILING)
 	assert_not_null(m.get_node_or_null("Room"))
 	assert_not_null(m.get_node_or_null("Furniture"))
+
+func test_no_columns() -> void:
+	var m := _main()
+	for n in m.room.find_children("Column*", "", true, false):
+		fail_test("column node %s" % n.name)
+	assert_eq(m.world.boxes.size(), FurnitureFactory.all_boxes().size(), "world holds exactly the furniture boxes")
+	for b in m.world.boxes:
+		assert_true(b.size.y < RoomData.CEILING - 0.5, "no full-height box %s" % b)
 
 func test_swarms_at_world_origin() -> void:
 	var m := _main()

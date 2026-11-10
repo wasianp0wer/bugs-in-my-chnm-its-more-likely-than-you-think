@@ -204,7 +204,7 @@ func test_clearance_is_half_body_length() -> void:
 	assert_eq(MotionRules.clearance({"motion": "flyer", "speed_mps": 1.0}), 0.0, "defaults to 0")
 
 func _deer_world() -> CollisionWorld:
-	var boxes: Array[AABB] = RoomGeometry.column_boxes()
+	var boxes: Array[AABB] = []
 	boxes.append_array(_world().boxes)
 	boxes.append(AABB(Vector3(24, 0, 12), Vector3(2, 0.45, 0.9)))  # sofa
 	return CollisionWorld.new(RoomData.RECTS, boxes, RoomData.CEILING)

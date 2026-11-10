@@ -2,7 +2,7 @@ extends SceneTree
 ## Windowed visual and numeric check of the GPU swarms (needs a GPU; NOT --headless):
 ##   godot --path sim -s res://tools/swarm_check.gd 2>&1 | tee build/swarm_check.log
 ##   ! grep -q "SHADER ERROR" build/swarm_check.log
-## Adds 50k fleas + 2k wasps + 3 deer to the bare room plus test boxes (columns, a desk,
+## Adds 50k fleas + 2k wasps + 3 deer to the bare room plus test boxes (a desk,
 ## a thin slab, a cabinet) and runs DURATION s. Prints the average FPS (t > 2 s) and saves
 ## <repo>/build/swarm_check.png (overview) and swarm_check_close.png (near the desk).
 ## Numeric check: PROBES single-particle batches per probe species, whose GPU read-back
@@ -39,7 +39,7 @@ var _shot := false
 
 
 func _init() -> void:
-	var boxes: Array[AABB] = RoomGeometry.column_boxes()
+	var boxes: Array[AABB] = []
 	boxes.append_array(TEST_BOXES)
 	_world = CollisionWorld.new(RoomData.RECTS, boxes, RoomData.CEILING)
 

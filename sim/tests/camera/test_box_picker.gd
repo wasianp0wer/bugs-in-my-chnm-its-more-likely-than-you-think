@@ -1,7 +1,7 @@
 extends GutTest
 
 const DESK := AABB(Vector3(14.0, 0.0, 4.0), Vector3(1.5, 0.75, 0.75))
-const COLUMN := AABB(Vector3(7.7, 0.0, 5.2), Vector3(0.6, 2.9, 0.6))
+const PILLAR := AABB(Vector3(7.7, 0.0, 5.2), Vector3(0.6, 2.9, 0.6))  # synthetic full-height box
 
 func test_straight_down_hits_floor_when_no_boxes() -> void:
 	var hit: Variant = BoxPicker.pick(Vector3(3, 10, 4), Vector3.DOWN, [])
@@ -14,9 +14,9 @@ func test_straight_down_onto_desk_hits_desktop() -> void:
 	assert_almost_eq(hit as Vector3, Vector3(14.5, 0.75, 4.3), Vector3.ONE * 1e-5)
 
 func test_nearest_box_wins() -> void:
-	# Looking east along z = 5.5 at y = 0.5: the column (x 7.7) comes before the desk.
+	# Looking east along z = 5.5 at y = 0.5: the pillar (x 7.7) comes before the desk.
 	var far_desk := AABB(Vector3(10.0, 0.0, 5.0), Vector3(1.0, 1.0, 1.0))
-	var boxes: Array[AABB] = [far_desk, COLUMN]
+	var boxes: Array[AABB] = [far_desk, PILLAR]
 	var hit: Variant = BoxPicker.pick(Vector3(2, 0.5, 5.5), Vector3.RIGHT, boxes)
 	assert_almost_eq(hit as Vector3, Vector3(7.7, 0.5, 5.5), Vector3.ONE * 1e-5)
 
