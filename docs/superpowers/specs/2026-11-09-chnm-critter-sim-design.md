@@ -81,14 +81,21 @@ Model these items for the main room. "Seen" means the item appears in photos of 
 | Stacking guest chairs | 3–4 | standard | grey | seen |
 | Black bookcases | 1–3 | 0.9 × 0.3 × 1.8 m | black | inferred for this room |
 | Plants (ficus/palm) | 1–2 | 1.2–1.8 m | green | inferred for this room |
-| Kitchenette counter by pantry/461 | 1 | about 2.4 m run | laminate, sink, fridge | inferred, no photo |
+| Kitchenette counter, in the SE alcove left of the TV, beside the filing cabinets | 1 | about 2.4 m run | laminate, sink, fridge | placed per the user's description; no photo |
+| Conference table with ~8 task chairs, behind the sofas | 1 | 3.6 × 1.2 × 0.75 m (12 × 4 ft) | beige laminate `#d9cfb8` | seen (meeting-room photo); placed per the user's description |
 
-**Layout** (builder's call, but follow this intent):
-- **Lounge:** sofas in an L/U around the coffee table, against the window bank on the north wall of 462/472. The owl lamp credenza sits under a window.
-- **Storage wall:** the black cabinets, TV and whiteboard go along an interior wall facing the lounge.
-- **Workspace:** desks with task chairs fill the rest of the room, plus a couple of group tables.
+**Layout** (the user's description of the real room, which overrides the earlier photo-based intent):
 
-Nothing documents the exact positions, so a plausible arrangement is fine. Keep the furniture layout in one editable scene, separate from the room geometry.
+> "Viewed as we load in: The TV should be against the wall closest to us, in the alcove to the right. The couches should be arranged in front of it, with a large conference table behind them. From our perspective, the kitchenette is to the left of the TV, and the filing cabinets next to the kitchenette. The desks are on the left, mostly aligned against the wall around the sides closest to us and to the left, with two islands of desks in the middle."
+
+The starting camera looks north from the south, so "closest to us" is the south wall and "left" is west.
+- **Lounge:** the TV stands against the south wall of the SE alcove, facing north. The navy sofas face it from the north, with the coffee table between, plus the tub and sling chairs.
+- **Meeting:** a 12 × 4 ft beige conference table with eight task chairs sits behind the sofas, in the east band.
+- **Kitchenette and filing:** the kitchenette is on the alcove's south wall, west of the TV. The black cabinets (filing cabinets) line up next to it, further west.
+- **Workspace:** the desks are on the left (west of the alcove). Most sit against the near (south) wall and the west walls, each with a task chair, plus two back-to-back islands of desks in the middle.
+- **The rest:** the owl lamp credenza stays under the north window bank. Group tables, bookcases, the AV cart, stacking chairs, plants and the whiteboard fill the remaining spots.
+
+Exact positions are the builder's call within that description. Keep the furniture layout in one editable scene, separate from the room geometry.
 
 **Modelling approach** (builder's call):
 - **Free CC0 furniture models:** use them where they fit, e.g. Kenney's Furniture Kit. Record each in the credits.

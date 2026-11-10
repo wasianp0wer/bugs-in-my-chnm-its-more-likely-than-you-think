@@ -11,9 +11,9 @@ const SHOT_FRAMES := 12  # frames per preset before the capture (shadows, glow, 
 const ANIMALS := [["flea", 100000], ["firefly", 200], ["wasp", 50], ["deer", 2]]
 ## name: [target, yaw (deg), pitch (deg), distance (m), seconds after the add]
 const PRESETS := {
-	"desk": [Vector3(14.6, 0.75, 4.3), 0.0, 35.0, 0.3, 0.8],
+	"desk": [Vector3(5.5, 0.75, 6.575), 0.0, 35.0, 0.3, 0.8],
 	"overview": [Vector3(15.75, 0.0, 7.4), 0.0, 55.0, 30.0, 4.0],
-	"lounge": [Vector3(6.6, 0.4, 2.2), 0.0, 32.0, 5.5, 4.0],
+	"lounge": [Vector3(27.9, 0.4, 12.5), 0.0, 40.0, 5.5, 4.0],
 	"floor_fleas": [Vector3(10.5, 0.0, 6.5), 0.0, 14.0, 0.45, 4.0],
 	"fireflies": [Vector3(18.0, 1.4, 7.0), 0.0, 20.0, 1.5, 4.0],
 }
