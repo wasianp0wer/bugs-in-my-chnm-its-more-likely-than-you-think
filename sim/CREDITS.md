@@ -12,6 +12,7 @@ Animal models used in the RRCHNM critter simulation. Quaternius models are CC0 (
 | Cat | Cat | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/6dM1J6f6pm9 |
 | Caterpillar | Caterpillar | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/64T47O5VHAB |
 | Centipede | Centipede | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/8C36B7L_2hR |
+| Chicken | Chicken | Quaternius | CC0 1.0 | https://poly.pizza/m/Z3RCoCYss4 |
 | Cockroach | Cockroach | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/eSCFQN_47V4 |
 | Crow | Crow | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/1MIvWQ5Q3R9 |
 | Deer | Deer | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/fUo4AIcd8XR |
