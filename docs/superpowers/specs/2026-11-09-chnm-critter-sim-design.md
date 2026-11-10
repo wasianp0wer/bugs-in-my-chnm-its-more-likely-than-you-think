@@ -81,7 +81,8 @@ Model these items for the main room. "Seen" means the item appears in photos of 
 | Stacking guest chairs | 3–4 | standard | grey | seen |
 | Black bookcases | 1–3 | 0.9 × 0.3 × 1.8 m | black | inferred for this room |
 | Plants (ficus/palm) | 1–2 | 1.2–1.8 m | green | inferred for this room |
-| Kitchenette counter by pantry/461 | 1 | about 2.4 m run | laminate, sink, fridge | inferred, no photo |
+| Kitchenette counter, in the SE alcove left of the TV, beside the filing cabinets | 1 | about 2.4 m run | laminate, sink, fridge | placed per the user's description; no photo |
+| Conference table with ~8 task chairs, behind the sofas | 1 | 3.6 × 1.2 × 0.75 m (12 × 4 ft) | beige laminate `#d9cfb8` | seen (meeting-room photo); placed per the user's description |
 
 **Layout** (the user's description of the real room, which overrides the earlier photo-based intent):
 
