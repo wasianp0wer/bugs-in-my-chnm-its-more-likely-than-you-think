@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b2d20h007bk28"
-path="res://.godot/imported/cat_Tex_Cat.png-360e7c8778f9c38ced168b158cbb4b24.ctex"
+path.s3tc="res://.godot/imported/cat_Tex_Cat.png-360e7c8778f9c38ced168b158cbb4b24.s3tc.ctex"
+path.etc2="res://.godot/imported/cat_Tex_Cat.png-360e7c8778f9c38ced168b158cbb4b24.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ab370005466fae375282a61eba42170e"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/animals/src/cat_Tex_Cat.png"
-dest_files=["res://.godot/imported/cat_Tex_Cat.png-360e7c8778f9c38ced168b158cbb4b24.ctex"]
+dest_files=["res://.godot/imported/cat_Tex_Cat.png-360e7c8778f9c38ced168b158cbb4b24.s3tc.ctex", "res://.godot/imported/cat_Tex_Cat.png-360e7c8778f9c38ced168b158cbb4b24.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

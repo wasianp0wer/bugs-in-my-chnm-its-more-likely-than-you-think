@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ljvilski0pp3"
-path="res://.godot/imported/firefly_2.png-69639bf9f1d6936ba6d0802405736ff5.ctex"
+path.s3tc="res://.godot/imported/firefly_2.png-69639bf9f1d6936ba6d0802405736ff5.s3tc.ctex"
+path.etc2="res://.godot/imported/firefly_2.png-69639bf9f1d6936ba6d0802405736ff5.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "2d8ec655b1a9e9d16731b764a766770b"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/animals/src/firefly_2.png"
-dest_files=["res://.godot/imported/firefly_2.png-69639bf9f1d6936ba6d0802405736ff5.ctex"]
+dest_files=["res://.godot/imported/firefly_2.png-69639bf9f1d6936ba6d0802405736ff5.s3tc.ctex", "res://.godot/imported/firefly_2.png-69639bf9f1d6936ba6d0802405736ff5.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
