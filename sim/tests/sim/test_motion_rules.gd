@@ -274,3 +274,23 @@ func test_deer_lands_on_box_edge_within_clearance() -> void:
 	var s := MotionRules.step(Vector3(6.5, 0.455, 4.5), Vector3(0, -1.0, 0), deer, w, 0.01, _rng())  # one substep
 	assert_almost_eq(s[0].y, 0.45, 1e-5, "landed on the sofa top")
 	assert_gt(s[1].y, 0.0)
+
+## Every real species entry (flyers have no hop_height_m) steps through the reference.
+func test_every_real_species_steps() -> void:
+	var w := _deer_world()
+	var rng := _rng()
+	for sp in SpeciesDB.load_all():
+		var c := MotionRules.clearance(sp)
+		var pos := _deer_start(w, c, rng)
+		var vel := MotionRules.initial_velocity(sp, rng)
+		for i in 120:
+			var s := MotionRules.step(pos, vel, sp, w, 1.0 / 60.0, rng)
+			pos = s[0]; vel = s[1]
+		assert_true(_corners_inside(w, pos, c - 1e-3), "%s in room" % sp["id"])
+		assert_gt(vel.length(), 0.0, sp["id"])
+
+## One gravity constant, in MotionRules; SpeciesDB.hop_speed uses it.
+func test_single_gravity_constant() -> void:
+	assert_false((load("res://scripts/species/species_db.gd") as Script).get_script_constant_map().has("GRAVITY"))
+	var deer := SpeciesDB.get_species("deer")
+	assert_almost_eq(SpeciesDB.hop_speed(deer), sqrt(2.0 * MotionRules.GRAVITY * 1.2), 1e-6)

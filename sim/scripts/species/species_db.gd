@@ -4,7 +4,6 @@ extends RefCounted
 
 const DATA_PATH := "res://data/species.json"
 const MESH_DIR := "res://assets/animals/"
-const GRAVITY := 9.8
 
 
 static func load_all() -> Array[Dictionary]:
@@ -35,7 +34,7 @@ static func get_species(id: String) -> Dictionary:
 static func hop_speed(s: Dictionary) -> float:
 	if s.get("motion", "") != "hopper":
 		return 0.0
-	return sqrt(2.0 * GRAVITY * float(s.get("hop_height_m", 0.0)))
+	return sqrt(2.0 * MotionRules.GRAVITY * float(s.get("hop_height_m", 0.0)))
 
 
 ## Yaw in degrees (0/90/180/270) the bake applies so the model's head faces +Z.

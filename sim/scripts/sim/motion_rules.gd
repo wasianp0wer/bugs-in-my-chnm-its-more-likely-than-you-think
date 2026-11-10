@@ -47,7 +47,7 @@ static func step(pos: Vector3, vel: Vector3, sp: Dictionary, world: CollisionWor
 		dt: float, rng: RandomNumberGenerator) -> Array:
 	dt = minf(dt, MAX_DT)
 	var hopper: bool = sp["motion"] == "hopper"
-	var hop_speed: float = sqrt(2.0 * GRAVITY * float(sp["hop_height_m"]))
+	var hop_speed := SpeciesDB.hop_speed(sp)
 	var cl := clearance(sp)
 	var reach := vel.length() + (GRAVITY * dt if hopper else 0.0)
 	var n := clampi(ceili(reach * dt / MAX_STEP), 1, MAX_SUBSTEPS)
