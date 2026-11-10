@@ -1,11 +1,6 @@
 extends GutTest
 
-const RECTS: Array[Rect2] = [
-	Rect2(0.0, 5.9, 2.9, 4.8),
-	Rect2(2.9, 0.0, 10.2, 10.7),
-	Rect2(13.1, 3.9, 18.4, 6.8),
-	Rect2(20.3, 10.7, 11.2, 4.1),
-]
+const RECTS: Array[Rect2] = RoomData.RECTS
 # body_length_m 0 = clearance 0: point animals, so these tests keep their original meaning.
 const FLEA := {"motion": "hopper", "speed_mps": 0.5, "hop_height_m": 0.2, "body_length_m": 0.0}
 const FLYER := {"motion": "flyer", "speed_mps": 1.5, "hop_height_m": 0.0, "body_length_m": 0.0}

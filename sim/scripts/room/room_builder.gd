@@ -171,12 +171,13 @@ static func _add_pane(parent: Node3D, i: int, o: Dictionary) -> void:
 	var glow := _mat("pane", Color("a9d8f5"), true)
 	_box(parent, "Pane_%d" % i, Vector3(o.u0, o.y0, THICK * 0.5 - 0.01), Vector3(o.u1, o.y1, THICK * 0.5 + 0.01), glow, false)
 
-## The Roy Rosenzweig mural: a textured quad on the wall's inner face, toward the east end.
+## The Roy Rosenzweig mural: a textured quad on the wall's inner face, its east end
+## MURAL_RIGHT_GAP west of RoomData.MURAL_EAST_X.
 ## The wall's local +z points outward, so the quad is placed in world space and converted.
 static func _add_mural(parent: Node3D, wall: Node3D) -> void:
 	var tex := load(MURAL_TEX) as Texture2D
 	var w := MURAL_H * float(tex.get_width()) / tex.get_height()
-	var east := maxf(RoomData.OUTLINE[RoomData.MURAL_EDGE].x, RoomData.OUTLINE[(RoomData.MURAL_EDGE + 1) % RoomData.OUTLINE.size()].x)
+	var east := RoomData.MURAL_EAST_X
 	var wall_z := RoomData.OUTLINE[RoomData.MURAL_EDGE].y
 	var centre := Vector3(east - MURAL_RIGHT_GAP - w * 0.5, MURAL_BOTTOM + MURAL_H * 0.5, wall_z + MURAL_OFFSET)
 	var mat := StandardMaterial3D.new()
