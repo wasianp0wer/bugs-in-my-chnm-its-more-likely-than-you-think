@@ -111,8 +111,8 @@ func test_emissive_species_gets_duplicated_emissive_materials() -> void:
 		assert_ne(m, orig, "surface %d material duplicated" % i)
 		assert_true(m.emission_enabled)
 		assert_eq(m.emission, Color("#d8ff6a"))
-		assert_eq(m.emission_energy_multiplier, 4.0)
-		assert_ne(orig.emission_energy_multiplier, 4.0, "shared material untouched")
+		assert_eq(m.emission_energy_multiplier, 10.0)
+		assert_ne(orig.emission_energy_multiplier, 10.0, "shared material untouched")
 		assert_ne(orig.emission, Color("#d8ff6a"), "shared material untouched")
 
 func test_non_emissive_species_shares_mesh() -> void:
@@ -167,7 +167,7 @@ func test_emissive_crowd_is_decimated_and_glows() -> void:
 	for i in b.draw_pass_1.get_surface_count():
 		var m := b.draw_pass_1.surface_get_material(i) as BaseMaterial3D
 		assert_eq(m.emission, Color("#d8ff6a"))
-		assert_eq(m.emission_energy_multiplier, 4.0)
+		assert_eq(m.emission_energy_multiplier, 10.0)
 		assert_ne(m, shared.surface_get_material(i))
 
 func test_add_creates_batches() -> void:
